@@ -1,0 +1,19 @@
+GeoTime:
+    DateTime: 2025-04-15 11:15:26.000
+    Latitude: 50
+    Longitude: 20
+    Tweak: yes
+Atmosphere:
+    PlanetRaduis: 6.371
+    AtmosphereRadius: 6.471
+    # im wieksze tym bardziej zolto
+    Rayleigh: 0.0095
+    # intensywnosc mgly
+    Mie: 0.0021
+    ScaleDepth: 0.15
+    InvWaveLength: [ 0.670, 0.570, 0.475, 0 ]
+    Tweak: yes
+Sun:
+    Size: 0.99
+    Power: 25
+    Tweak: no

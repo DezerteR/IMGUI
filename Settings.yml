@@ -1,0 +1,21 @@
+Video:
+    Fullscreen: no
+    Size: [1600 900]
+    Gamma: 2.2
+    Camera:
+        Fov: 86
+        Inertia: 1
+Audio:
+    pass: 0
+Controls:
+    Fire: RMB
+    View: RMB
+    Zoom: Scroll
+    MoveForward: W
+    MoveBackward: S
+    MoveLeft: A
+    MoveRight: D
+    MoveUp: Q
+    MoveDown: Z
+    PrevAmmo: [
+    NextAmmo: ]

@@ -1,0 +1,17 @@
+EditBox:
+    Color: 0x0d0d0d10
+    Color2: 0xfafafafa
+    FontColor: 0xfafafaff
+Button:
+    Color: 0x0d0d0d10
+    ColorHover: 0x1d1d1d10
+    ColorAction: 0x2d2d2d20
+    FontColor: 0xfafafaff
+EditBox:
+    Color: 0x000000fa
+    ColorHover: 0x1d1d1d10
+    ColorAction: 0x2d2d2d20
+    FontColor: 0xfafafaff
+Label:
+    Color: 0x000000fa
+    FontColor: 0xfafafaff

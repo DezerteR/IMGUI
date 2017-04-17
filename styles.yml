@@ -1,0 +1,44 @@
+
+Styles:
+  Basic:
+   background: 0x7dc939ff
+   label: 0x364958FF
+   button: 0x364958FF
+   button_hover: 0x364958FF
+   hover: 0x6F7579FF
+   editBox: 0x1D1D1DFF
+   editBox_hover: 0x1D1D1DFF
+   fontColor: 0xFAF9F7FF
+   imageColor: 0xFAF9F7FF
+   imageColor_hover: 0xFAF9F7FF
+   font: ui_12
+   fancy:
+    - 0x083455FF
+    - 0x73C733FF
+    - 0x24230EFF
+    - 0x24230EFF
+Graphic:
+  GUIbackground:
+    -  0x607D8BF0
+    -  0x35383CF0
+    -  0x3D3F4CF0
+    -  0x3D3F4CF0
+  GUIeditBox:
+    -  0x2B4563F0
+    -  0x434950F0
+    -  0x3D3F4CF0
+    -  0x3D3F4CF0
+    -  0x3D3F4CF0
+  GUIhover:
+    -  0x455A64F0
+    -  0x162434F0
+    -  0x3D3F4CF0
+    -  0x3D3F4CF0
+    -  0x3D3F4CF0
+  GUIfontColor:
+    -  0xFFFFFFFF
+    -  0x212121FF
+    -  0x3D3F4CF0
+    -  0x3D3F4CF0
+  clearColor: 0x4B4B4BFF
+  clearColor2: 0x4B4B4BFF
