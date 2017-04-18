@@ -191,3 +191,12 @@ void Context::resetShapes(){ /// TODO: zwalidować użycia tego
           .addBuffer(texcoords)
           ();
 }
+
+bool Context::_errors(const std::string &text, const std::string &file, int line, const std::string &fun){
+    int err = gl::GetError();
+    if(err != gl::NO_ERROR_){
+        error("GLError:", err, file+"#", line, ":", fun, "::", text);
+        return true;
+    }
+    return false;
+}

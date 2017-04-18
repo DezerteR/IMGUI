@@ -6,6 +6,7 @@
 #include "Timer.hpp"
 #include "UIUpdater.hpp"
 #include "Renderer.hpp"
+#include "UIDrawer.hpp"
 
 class App
 {
@@ -36,7 +37,7 @@ public:
         }
     }
     void render(){
-        // renderer->uiRenderer->renderUis(uiUpdater->getUis);
+        renderer->uiDrawer->renderUis(uiUpdater->getUis());
         glfwSwapBuffers(window.window);
     }
 };

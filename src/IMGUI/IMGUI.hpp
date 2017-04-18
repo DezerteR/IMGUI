@@ -6,7 +6,7 @@
 #include "BaseStructs.hpp"
 #include "KeyState.hpp"
 #include "FontRenderer.hpp"
-#include "UIContainer.hpp"
+#include "UIGraphicComponent.hpp"
 #include "Style.hpp"
 
 
@@ -142,8 +142,18 @@ public:
 private:
 };
 
+struct CurrentItem
+{
+    HexColor textColor;
+    HexColor borderColor;
+    HexColor color;
+    int buttonState;
+    glm::vec4 positionSize;
+};
+
 class IMGUI
 {
+    CurrentItem item {};
 public:
     void printTextEditorValue();
     template<typename T>
@@ -232,7 +242,7 @@ public:
     template<typename... Args>
     IMGUI& kahgfukefda(const Args &... args){
         this->m_text = toString(args...);
-        m_textOffset += fonts[m_font].render(m_text, this->m_box.xy() + glm::vec2(m_textOffset+3, floor(this->m_box.w/2.f - fonts[m_font].height/2)), m_fontColor ? m_fontColor : m_styles[m_style].fontColor, this->m_caretPosition);
+        m_textOffset += fonts[m_font].render(m_text, this->m_box.xy() + glm::vec2(m_textOffset+3, floor(this->m_box.w/2.f - fonts[m_font].height/2)), m_fontColor ? m_fontColor : m_style.font.color, this->m_caretPosition);
 
         if(this->m_flag & CenterText){
             fonts[m_font].move( (this->m_box.z - m_textOffset)/2-3, 0);
@@ -268,6 +278,8 @@ public:
     IMGUI& slider(u32 &value, u32 min, u32 max);
     IMGUI& slider(i32 &value, i32 min, i32 max);
     IMGUI& operator () (int flags = 0);
+
+    IMGUI() : m_uiGraphic(m_style){}
 
     void restoreDefaults();
     TextEditor textEditor;
@@ -415,11 +427,9 @@ public:
     }
 
     void style(StyleID id){
-        m_style = (int)id;
-        m_boxStack[m_boxIndex].m_style = (int)id;
     }
     Style& getStyle(){
-        return m_styles[m_style];
+        return m_style;
     }
 
     std::vector <Box> m_rects;
@@ -444,9 +454,8 @@ public:
     Box m_defaultRect{ 0, 0, 150, 22 };
     std::string m_defaultFont{ "ui_12" };
     int m_defaultFontSize{ 12 };
-    std::vector<Style> m_styles;
+    Style m_style;
     Box m_box;
-    int m_style;
     bool m_hover;
     /// box processing
     bool m_lClicked;
@@ -494,7 +503,7 @@ public:
     int layerToDraw;
     int m_key, m_action, m_mod;
     int m_mouseKey, m_mouseAction;
-    IUIContainer *m_UIContainer;
+    UIGraphicComponent m_uiGraphic;
     std::unordered_map<std::string, Font> fonts;
     Box m_lastBox;
     std::string name { "ui" };

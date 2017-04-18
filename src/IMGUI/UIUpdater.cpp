@@ -1,6 +1,7 @@
 #include <GLFW/glfw3.h>
 #include "UIUpdater.hpp"
 #include "Window.hpp"
+#include "IMGUI.hpp"
 
 namespace UI
 {
@@ -43,6 +44,11 @@ void Updater::setMousePosition(int x, int y){
 
     mb.mousePosition = glm::vec2(x, y);
     mb.relativeMousePosition = glm::vec2(x, y)/window.size;
+}
+
+std::shared_ptr<IMGUI> Updater::createUi(){
+    uis.emplace_back(std::make_shared<IMGUI>());
+    return uis.back();
 }
 
 }

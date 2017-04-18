@@ -15,7 +15,7 @@ bool Window::init(){
     }
 
     glfwWindowHint(GLFW_RESIZABLE, gl::FALSE_);
-    glfwWindowHint(GLFW_DECORATED, gl::FALSE_);
+    // glfwWindowHint(GLFW_DECORATED, gl::FALSE_);
 
     const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     screenSize.x = mode->width;

@@ -4,7 +4,7 @@
 #include "Window.hpp"
 
 
-Renderer::Renderer(Window &window) : window(window), context(std::make_shared<Context>(window)), uiDrawer(std::make_shared<UIDrawer>(*context)){
+Renderer::Renderer(Window &window) : window(window), context(std::make_shared<Context>(window)), uiDrawer(std::make_shared<UIDrawer>(window, *context)){
     context->reset();
 }
 

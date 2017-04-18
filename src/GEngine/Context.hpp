@@ -81,4 +81,7 @@ public:
     void setupFbo_12(const Texture &texture);
     void setupFbo_12(const Texture &texture, const Texture &texture2);
     void setupFbo_14(const Texture &texture);
+
+    bool _errors(const std::string &text, const std::string &file, int line, const std::string &fun);
 };
+#define errors() _errors("", __FILE__, __LINE__, __FUNCTION__)

@@ -35,6 +35,10 @@ public:
     void update(u32 dt);
     void setMouseAction(int key, int action);
     void setMousePosition(int x, int y);
+    std::vector<std::shared_ptr<IMGUI>>& getUis(){
+        return uis;
+    }
+    std::shared_ptr<IMGUI> createUi();
 };
 
 

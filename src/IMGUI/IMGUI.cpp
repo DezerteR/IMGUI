@@ -146,7 +146,7 @@ IMGUI& IMGUI::rect(int w, int h, HexColor color){
     this->m_lClicked = this->m_hover && this->ks.lClick;
     this->m_rClicked = this->m_hover && this->ks.rClick;
 
-    m_UIContainer->push(Label, color, this->m_box, currentLayer);
+    m_uiGraphic.push(Label, color, this->m_box, currentLayer);
 
     this->m_forceNoDraw = true;
 
@@ -158,7 +158,7 @@ IMGUI& IMGUI::rect(HexColor color){
     this->m_lClicked = this->m_hover && this->ks.lClick;
     this->m_rClicked = this->m_hover && this->ks.rClick;
 
-    m_UIContainer->push(Label, color, this->m_box, currentLayer);
+    m_uiGraphic.push(Label, color, this->m_box, currentLayer);
 
     this->m_forceNoDraw = true;
 
@@ -171,7 +171,7 @@ IMGUI& IMGUI::rect(Box r, HexColor color){
     this->m_lClicked = this->m_hover && this->ks.lClick;
     this->m_rClicked = this->m_hover && this->ks.rClick;
 
-    m_UIContainer->push(Label, color, this->m_box, currentLayer);
+    m_uiGraphic.push(Label, color, this->m_box, currentLayer);
 
     this->m_forceNoDraw = true;
     this->m_buttonFlags |= NoInsertion;
@@ -185,7 +185,7 @@ IMGUI& IMGUI::rect(int x, int y, int w, int h, HexColor color){
     this->m_lClicked = this->m_hover && this->ks.lClick;
     this->m_rClicked = this->m_hover && this->ks.rClick;
 
-    m_UIContainer->push(Label, color, this->m_box, currentLayer);
+    m_uiGraphic.push(Label, color, this->m_box, currentLayer);
 
     this->m_buttonFlags |= NoInsertion;
     this->m_forceNoDraw = true;
@@ -332,7 +332,7 @@ IMGUI& IMGUI::text(const std::string &text, const std::string &font, int flag, i
     this->m_flag |= flag;
     this->m_text = text;
     this->m_caretPosition = caretPosition;
-    m_textOffset += fonts[font].render(m_text, this->m_box.xy() + glm::vec2(m_textOffset+3, floor(this->m_box.w/2.f - fonts[font].height/2)), m_fontColor ? m_fontColor : m_styles[m_style].fontColor, this->m_caretPosition);
+    m_textOffset += fonts[font].render(m_text, this->m_box.xy() + glm::vec2(m_textOffset+3, floor(this->m_box.w/2.f - fonts[font].height/2)), m_fontColor ? m_fontColor : m_style.font.color, this->m_caretPosition);
 
     if(this->m_flag & CenterText){
         fonts[font].move( (this->m_box.z - m_textOffset)/2-3, 0);
@@ -362,7 +362,7 @@ IMGUI& IMGUI::text(const std::string &text, int flag, int caretPosition){
 IMGUI& IMGUI::text(const std::u16string &text, const std::string &font, int flag, int caretPosition){
     this->m_flag |= flag;
     this->m_caretPosition = caretPosition;
-    m_textOffset += fonts[font].render(text, this->m_box.xy() + glm::vec2(m_textOffset+3, floor(this->m_box.w/2.f - fonts[font].height/2)), m_fontColor ? m_fontColor : m_styles[m_style].fontColor, this->m_caretPosition);
+    m_textOffset += fonts[font].render(text, this->m_box.xy() + glm::vec2(m_textOffset+3, floor(this->m_box.w/2.f - fonts[font].height/2)), m_fontColor ? m_fontColor : m_style.font.color, this->m_caretPosition);
 
     if(this->m_flag & CenterText){
         fonts[font].move( (this->m_box.z - m_textOffset)/2-3, 0);
@@ -375,7 +375,7 @@ IMGUI& IMGUI::text(const std::u16string &text, const std::string &font, int flag
 IMGUI& IMGUI::text(const std::u16string &text, int flag, int caretPosition){
     this->m_flag |= flag;
     this->m_caretPosition = caretPosition;
-    m_textOffset += fonts[m_font].render(text, this->m_box.xy() + glm::vec2(m_textOffset+3, floor(this->m_box.w/2.f - fonts[m_font].height/2)), m_fontColor ? m_fontColor : m_styles[m_style].fontColor, this->m_caretPosition);
+    m_textOffset += fonts[m_font].render(text, this->m_box.xy() + glm::vec2(m_textOffset+3, floor(this->m_box.w/2.f - fonts[m_font].height/2)), m_fontColor ? m_fontColor : m_style.font.color, this->m_caretPosition);
 
     if(this->m_flag & CenterText){
         fonts[m_font].move( (this->m_box.z - m_textOffset)/2-3, 0);
@@ -557,8 +557,8 @@ IMGUI& IMGUI::slider(float &value, float min, float max){
     }
     // else currentSlider = nullptr;
 
-    m_UIContainer->push(UI::Hover, m_styles[m_style].fancy[0], slide, currentLayer);
-    m_UIContainer->push(UI::Hover, m_styles[m_style].fancy[1], slider_, currentLayer);
+    m_uiGraphic.push(UI::Hover, m_style.button.color, slide, currentLayer);
+    m_uiGraphic.push(UI::Hover, m_style.button.color, slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::slider(double &value, double min, double max){
@@ -588,8 +588,8 @@ IMGUI& IMGUI::slider(double &value, double min, double max){
     }
     // else currentSlider = nullptr;
 
-    m_UIContainer->push(UI::Hover, m_styles[m_style].fancy[0], slide, currentLayer);
-    m_UIContainer->push(UI::Hover, m_styles[m_style].fancy[1], slider_, currentLayer);
+    m_uiGraphic.push(UI::Hover, m_style.button.color, slide, currentLayer);
+    m_uiGraphic.push(UI::Hover, m_style.button.color, slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::slider(i64 &value, i64 min, i64 max){
@@ -618,8 +618,8 @@ IMGUI& IMGUI::slider(i64 &value, i64 min, i64 max){
     }
     // else currentSlider = nullptr;
 
-    m_UIContainer->push(UI::Hover, m_styles[m_style].fancy[0], slide, currentLayer);
-    m_UIContainer->push(UI::Hover, m_styles[m_style].fancy[1], slider_, currentLayer);
+    m_uiGraphic.push(UI::Hover, m_style.button.color, slide, currentLayer);
+    m_uiGraphic.push(UI::Hover, m_style.button.color, slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::slider(u32 &value, u32 min, u32 max){
@@ -648,8 +648,8 @@ IMGUI& IMGUI::slider(u32 &value, u32 min, u32 max){
     }
     // else currentSlider = nullptr;
 
-    m_UIContainer->push(UI::Hover, m_styles[m_style].fancy[0], slide, currentLayer);
-    m_UIContainer->push(UI::Hover, m_styles[m_style].fancy[1], slider_, currentLayer);
+    m_uiGraphic.push(UI::Hover, m_style.button.color, slide, currentLayer);
+    m_uiGraphic.push(UI::Hover, m_style.button.color, slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::slider(i32 &value, i32 min, i32 max){
@@ -678,8 +678,8 @@ IMGUI& IMGUI::slider(i32 &value, i32 min, i32 max){
     }
     // else currentSlider = nullptr;
 
-    m_UIContainer->push(UI::Hover, m_styles[m_style].fancy[0], slide, currentLayer);
-    m_UIContainer->push(UI::Hover, m_styles[m_style].fancy[1], slider_, currentLayer);
+    m_uiGraphic.push(UI::Hover, m_style.button.color, slide, currentLayer);
+    m_uiGraphic.push(UI::Hover, m_style.button.color, slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::operator () (int flags){
@@ -687,22 +687,22 @@ IMGUI& IMGUI::operator () (int flags){
         this->m_box += Box(-1,-1,2,2);
 
     // if((flags & UI::Hover) && this->m_hover)
-    //      m_UIContainer->push(UI::Hover, m_styles[m_style].hover, this->m_box, currentLayer);
+    //      m_uiGraphic.push(UI::Hover, m_style.hover, this->m_box, currentLayer);
     // else if(flags & UI::Editable)
-    //      m_UIContainer->push(UI::Editable, m_styles[m_style].editBox, this->m_box, currentLayer);
+    //      m_uiGraphic.push(UI::Editable, m_style.editBox, this->m_box, currentLayer);
     // else if(flags & UI::Label)
-    //      m_UIContainer->push(UI::Label, m_styles[m_style].button, this->m_box, currentLayer);
+    //      m_uiGraphic.push(UI::Label, m_style.button, this->m_box, currentLayer);
     if (!(m_buttonFlags & NoInsertion))
          currentBox().insertRect(this->m_box);
 
-    // m_UIContainer->push(flags, m_styles[m_style], this->m_color, this->m_box, currentLayer);
-    m_UIContainer->push(flags, m_styles[0], this->m_color, this->m_box, currentLayer);
+    // m_uiGraphic.push(flags, m_style, this->m_color, this->m_box, currentLayer);
+    m_uiGraphic.push(flags, m_style, this->m_color, this->m_box, currentLayer);
 
     if(this->m_imageEnbl){
         // this->m_image.color = this->m_color;
-        // this->m_image.color = this->m_forceColor ? m_color : m_styles[m_style].imageColor;
-        this->m_image.color = this->m_color ? this->m_color : m_styles[m_style].imageColor;
-        m_UIContainer->push(UI::Image, this->m_image);
+        // this->m_image.color = this->m_forceColor ? m_color : m_style.imageColor;
+        this->m_image.color = this->m_color ? this->m_color : m_style.image.color;
+        m_uiGraphic.push(UI::Image, this->m_image);
     }
     if (flags & UI::CaptureMouse){
         if(this->m_lClicked || this->m_rClicked){
@@ -723,11 +723,10 @@ void IMGUI::restoreDefaults(){
     m_imageEnbl = false;
     m_text = "";
     m_caretPosition = -1;
-    // m_color = m_styles[m_style].background;
+    // m_color = m_style.background;
     // m_style = m_boxStack[m_boxIndex].m_style;
-    m_style = 0;
-    m_font = m_styles[m_style].font;
-    m_fontColor = m_styles[m_style].fontColor;
+    m_font = m_style.font.name;
+    m_fontColor = m_style.font.color;
     m_color = 0;
     // m_fontColor = 0;
     m_lastBox = m_box;
@@ -778,8 +777,6 @@ void IMGUI::begin(){
     tmpMaxLayer = 0;
     currentLayer = 0;
     m_force = false;
-    m_style = 0;
-    m_boxStack[m_boxIndex].m_style = 0;
     m_boxStack[0].m_box = Box(0,0,m_maxHorizontal,m_maxVertical);
     m_collRects.clear();
     this->captureMouse = false;
@@ -866,12 +863,9 @@ IMGUIBox& IMGUIBox::box(int flags, Box spawnPosition, IMGUI *_imgui){
     m_currStart.z = 0;
     m_currStart.w = 0;
 
-    // m_style = imgui->parentBox().m_style;
-    m_style = 0;
-
     if(m_flags & Draw){
-        m_rectIdx = imgui->m_UIContainer->size(UI::BigBox);
-        imgui->m_UIContainer->push(UI::BigBox, imgui->m_styles[m_style].background, spawnPosition, _imgui->currentLayer);
+        m_rectIdx = imgui->m_uiGraphic.size(UI::BigBox);
+        imgui->m_uiGraphic.push(UI::BigBox, imgui->m_style.background.color, spawnPosition, _imgui->currentLayer);
     }
 
     return *this;
@@ -953,10 +947,6 @@ IMGUIBox& IMGUIBox::offset(float x, float y){
     m_box.y += v;
     return *this;
 }
-IMGUIBox& IMGUIBox::style(StyleID s){
-    m_style = (int)s;
-    return *this;
-}
 IMGUIBox& IMGUIBox::border(int b){
     m_border = b;
     return *this;
@@ -981,10 +971,7 @@ IMGUIBox& IMGUI::endBox(){
     rect = fixRect(rect);
 
     if(group.m_flags & Draw){
-        m_UIContainer->change(UI::BigBox, group.m_rectIdx, m_styles[m_style].background, rect);
-        // m_specRects[currentLayer][group.m_rectIdx] = rect;
-        // m_specRectsColor[currentLayer][group.m_rectIdx] = m_styles[m_style].background;
-
+        m_uiGraphic.change(UI::BigBox, group.m_rectIdx, m_style.background.color, rect);
     }
 
     m_boxStack[m_boxIndex].m_box = rect;
@@ -1537,22 +1524,16 @@ void loadStyles(IMGUI &ui){
     const Yaml &styles = loadYaml("../styles.yml");
     auto LoadStyle = [&styles, &ui](int idx, std::string styleName){
         auto &cfg = styles["Styles"][styleName];
-        ui.m_styles[idx] = UI::Style{};
-        ui.m_styles[idx].background = cfg["background"].color();
-        ui.m_styles[idx].button     = cfg["button"].color();
-        ui.m_styles[idx].hover      = cfg["hover"].color();
-        ui.m_styles[idx].editBox    = cfg["editBox"].color();
-        ui.m_styles[idx].fontColor  = cfg["fontColor"].color();
-        ui.m_styles[idx].imageColor = cfg["imageColor"].color();
-        ui.m_styles[idx].label      = cfg["label"].color();
-        // ui.m_styles[idx].label      = 0xFFFF00FF;
-        // ui.m_styles[(int)styleID].label = cfg["label"].color();
-        ui.m_styles[idx].font = cfg["font"].string();
-        for(int i=0; i<4 && i<cfg["fancy"].size(); i++)
-            ui.m_styles[idx].fancy[i] = cfg["fancy"][i].color();
+        ui.m_style = UI::Style {};
+        ui.m_style.background.color = cfg["background"].color();
+        ui.m_style.button.color     = cfg["button"].color();
+        ui.m_style.button.hovered     = cfg["hover"].color();
+        ui.m_style.editbox.color    = cfg["editBox"].color();
+        ui.m_style.font.color  = cfg["fontColor"].color();
+        ui.m_style.image.color = cfg["imageColor"].color();
+        ui.m_style.label.color      = cfg["label"].color();
+        ui.m_style.font.name = cfg["font"].string();
     };
-    ui.m_styles.clear();
-    ui.m_styles.resize(1);
     LoadStyle(0, "Basic");
 }
 }
