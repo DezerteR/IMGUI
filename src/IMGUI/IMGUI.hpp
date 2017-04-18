@@ -9,6 +9,7 @@
 #include "UIGraphicComponent.hpp"
 #include "Style.hpp"
 
+class Window;
 
 namespace UI {
 typedef glm::vec4 Box;
@@ -148,18 +149,43 @@ struct CurrentItem
     HexColor borderColor;
     HexColor color;
     int buttonState;
-    glm::vec4 positionSize;
+    glm::vec4 box;
+    bool hover;
+    bool lClicked;
+    bool rClicked;
+    int type;
 };
 
 class IMGUI
 {
     CurrentItem item {};
+    glm::vec4 bounds;
 public:
+    UIGraphicComponent m_uiGraphic;
+
+    IMGUI(glm::vec4 bounds) : m_uiGraphic(m_style), bounds(bounds){}
+
     void printTextEditorValue();
     template<typename T>
     void processTE(T &value, int base);
     template<typename T>
     void processTE(T &value);
+
+    template<typename ...Args>
+    IMGUI& button(Args &&...args){
+        // item.type = Style::Button;
+        return rect(args...);
+    }
+    template<typename ...Args>
+    IMGUI& label(Args &&...args){
+        // item.type = Style::Label;
+        return rect(args...);
+    }
+    template<typename ...Args>
+    IMGUI& editbox(Args &&...args){
+        // item.type = Style::Editbox;
+        return rect(args...);
+    }
 
     IMGUIBox& box(int flags);
     IMGUIBox& endBox();
@@ -242,13 +268,13 @@ public:
     template<typename... Args>
     IMGUI& kahgfukefda(const Args &... args){
         this->m_text = toString(args...);
-        m_textOffset += fonts[m_font].render(m_text, this->m_box.xy() + glm::vec2(m_textOffset+3, floor(this->m_box.w/2.f - fonts[m_font].height/2)), m_fontColor ? m_fontColor : m_style.font.color, this->m_caretPosition);
+        m_textOffset += fonts[m_font].render(m_text, item.box.xy() + glm::vec2(m_textOffset+3, floor(item.box.w/2.f - fonts[m_font].height/2)), m_fontColor ? m_fontColor : m_style.font.color, this->m_caretPosition);
 
         if(this->m_flag & CenterText){
-            fonts[m_font].move( (this->m_box.z - m_textOffset)/2-3, 0);
+            fonts[m_font].move( (item.box.z - m_textOffset)/2-3, 0);
         }
         else if(this->m_flag & TextToRight){
-            fonts[m_font].move( (this->m_box.z - m_textOffset)-3, 0);
+            fonts[m_font].move( (item.box.z - m_textOffset)-3, 0);
         }
         if(LastTextHeight > 0)
             fonts[m_font].move( 0, LastTextHeight/2);
@@ -279,12 +305,10 @@ public:
     IMGUI& slider(i32 &value, i32 min, i32 max);
     IMGUI& operator () (int flags = 0);
 
-    IMGUI() : m_uiGraphic(m_style){}
-
     void restoreDefaults();
     TextEditor textEditor;
-    float m_maxHorizontal;
-    float m_maxVertical;
+    // float m_maxHorizontal;
+    // float m_maxVertical;
     void begin();
     void end();
 
@@ -455,7 +479,6 @@ public:
     std::string m_defaultFont{ "ui_12" };
     int m_defaultFontSize{ 12 };
     Style m_style;
-    Box m_box;
     bool m_hover;
     /// box processing
     bool m_lClicked;
@@ -503,7 +526,6 @@ public:
     int layerToDraw;
     int m_key, m_action, m_mod;
     int m_mouseKey, m_mouseAction;
-    UIGraphicComponent m_uiGraphic;
     std::unordered_map<std::string, Font> fonts;
     Box m_lastBox;
     std::string name { "ui" };

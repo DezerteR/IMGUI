@@ -1,5 +1,6 @@
 #include "Context.hpp"
 #include "Logging.hpp"
+#include "Assets.hpp"
 
 void Context::reset(){
     resetTextures();
@@ -69,8 +70,8 @@ void Context::resetFbo(){
         gl::DrawBuffers(1, fbo.drawBuffers);
         gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
 
-    // gl::GenFramebuffers(1, &fbo.fbo_18);
-    //     gl::BindFramebuffer(gl::FRAMEBUFFER, fbo.fbo_18);
+    // gl::GenFramebuffers(1, &fbo._18);
+    //     gl::BindFramebuffer(gl::FRAMEBUFFER, fbo._18);
     //     gl::Viewport(0, 0, window.size.x/8.f, window.size.y/8.f);
     //     gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, Textures::RGBA8_1_12.ID, 0);
     //     gl::DrawBuffers(1, fbo.drawBuffers);
@@ -199,4 +200,154 @@ bool Context::_errors(const std::string &text, const std::string &file, int line
         return true;
     }
     return false;
+}
+
+void Context::setupFBO_11(const Texture &t0){
+    // if(currentFbo != fbo.full){
+        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo.full);
+    //     currentFbo = fbo.full;
+    // }
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
+    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
+    gl::Viewport(0, 0, window.size.x, window.size.y);
+}
+void Context::setupFBO_11_depth(const Texture &t0){
+    // if(currentFbo != fbo.full){
+        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo.full);
+    //     currentFbo = fbo.full;
+    // }
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
+    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, tex.gbuffer.depth.ID, 0);
+    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
+    gl::Viewport(0, 0, window.size.x, window.size.y);
+}
+void Context::setupFBO_11_depth(const Texture &t0, const Texture &t1){
+    // if(currentFbo != fbo.full){
+        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo.full);
+    //     currentFbo = fbo.full;
+    // }
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT1, t1.ID, 0);
+    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, tex.gbuffer.depth.ID, 0);
+    gl::DrawBuffers(2, &fbo.drawBuffers[0]);
+    gl::Viewport(0, 0, window.size.x, window.size.y);
+}
+void Context::setupFBO_11(const Texture &t0, const Texture &t1){
+    // if(currentFbo != fbo.full){
+        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo.full);
+    //     currentFbo = fbo.full;
+    // }
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT1, t1.ID, 0);
+    gl::DrawBuffers(2, &fbo.drawBuffers[0]);
+    gl::Viewport(0, 0, window.size.x, window.size.y);
+}
+void Context::setupFBO_12(const Texture &t0){
+    // if(currentFbo != fbo._12){
+        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo._12);
+    //     currentFbo = fbo._12;
+    // }
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
+    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
+    gl::Viewport(0, 0, window.size.x*0.5f, window.size.y*0.5f);
+}
+void Context::setupFBO_12(const Texture &t0, const Texture &t1){
+    // if(currentFbo != fbo._12){
+        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo._12);
+    //     currentFbo = fbo._12;
+    // }
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT1, t1.ID, 0);
+    gl::DrawBuffers(2, &fbo.drawBuffers[0]);
+    gl::Viewport(0, 0, window.size.x*0.5f, window.size.y*0.5f);
+}
+void Context::setupFBO_12_wide(const Texture &t0){
+    // if(currentFbo != fbo._12_wide){
+        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo._12_wide);
+    //     currentFbo = fbo._12_wide;
+    // }
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
+    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
+    gl::Viewport(0, 0, window.size.x, window.size.y*0.5f);
+}
+void Context::setupFBO_14(const Texture &t0){
+    // if(currentFbo != fbo._14){
+        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo._14);
+    //     currentFbo = fbo._14;
+    // }
+    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo._14);
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
+    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
+    gl::Viewport(0, 0, window.size.x*0.25f, window.size.y*0.25f);
+}
+void Context::setupFBO_18(const Texture &t0){
+    // if(currentFbo != fbo._18){
+        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo._18);
+    //     currentFbo = fbo._18;
+    // }
+    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo._18);
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
+    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
+    gl::Viewport(0, 0, window.size.x*0.125f, window.size.y*0.125f);
+}
+void Context::unbindFBO(){
+    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
+    currentFbo = 0xffffff;
+}
+
+void Context::drawScreen(){
+    defaultVAO.bind();
+    shape.screen.bind().attrib(0).pointer_float(4).divisor(0);
+    gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
+    gl::BindVertexArray(0);
+}
+
+void Context::beginFrame(){
+    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo.full);
+    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, tex.gbuffer.color.ID, 0);
+    // gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT1, gl::TEXTURE_2D, tex.gbuffer.normals.ID, 0);
+    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, tex.gbuffer.depth.ID, 0);
+    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
+    // gl::DrawBuffers(2, &fbo.drawBuffers[0]);
+    gl::Viewport(0, 0, window.size.x, window.size.y);
+
+    gl::DepthRange(0.0f, 1.0f);
+    gl::DepthFunc(gl::LEQUAL);
+    gl::FrontFace(gl::CCW);
+
+    gl::Disable(gl::BLEND);
+    gl::DepthMask(gl::TRUE_);
+    // gl::Enable(gl::CULL_FACE);
+    gl::Disable(gl::CULL_FACE);
+    gl::Enable(gl::DEPTH_TEST);
+    gl::DisableVertexAttribArray(0);
+    gl::BindTexture(gl::TEXTURE_2D, 0);
+
+    gl::ClearColor(0.25f, 0.25f, 0.2f, 1.f);
+    gl::ClearDepth(1);
+    gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
+
+    defaultVAO.bind();
+
+    errors();
+}
+void Context::endFrame(){
+    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+    gl::DisableVertexAttribArray(0);
+    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
+    gl::BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
+
+    gl::Disable(gl::DEPTH_TEST);
+    gl::Disable(gl::BLEND);
+    gl::Disable(gl::CULL_FACE);
+    gl::DepthMask(gl::FALSE_);
+
+    auto shader = assets::getShader("ApplyFBO");
+    shader.bind();
+    shader.texture("uTexture", tex.gbuffer.color.ID, 0);
+    drawScreen();
+
+    gl::UseProgram(0);
+    gl::BindVertexArray(0);
+    gl::DisableVertexAttribArray(0);
 }

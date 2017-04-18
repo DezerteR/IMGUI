@@ -37,13 +37,15 @@ void UIDrawer::renderBoxes(UI::IMGUI &ui, u32 layer){
     shader.uniform("uWidth", window.size.x);
     shader.uniform("uHeight", window.size.y);
 
+    clog(shader.ID, "Render", ui.m_uiGraphic.boxes[layer].size(), "boxes, at ", ui.m_uiGraphic.boxes[layer][0].positionSize);
+
     context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
     context.getRandomBuffer().update(ui.m_uiGraphic.boxes[layer])
         .attrib(1).pointer_float(4, sizeof(BoxGraphic), (void*)offsetof(BoxGraphic, positionSize)).divisor(1)
         .attrib(2).pointer_color(sizeof(BoxGraphic), (void*)offsetof(BoxGraphic, color)).divisor(1)
         .attrib(3).pointer_color(sizeof(BoxGraphic), (void*)offsetof(BoxGraphic, borderColor)).divisor(1);
 
-    gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, ui.m_uiGraphic.boxes[layer].size());
+    gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, ui.m_uiGraphic.boxes[layer].size()); /// TODO: check if simple draw arrays wouldn't be faster
 
     ui.m_uiGraphic.boxes[layer].clear();
 
@@ -51,13 +53,13 @@ void UIDrawer::renderBoxes(UI::IMGUI &ui, u32 layer){
 }
 
 void UIDrawer::renderImages(UI::IMGUI &ui, u32 layer){
-    auto shader = assets::getShader("DrawIcon");
-    shader.bind();
-    shader.texture("uTexture", ui.m_imageSet->ID);
-    shader.uniform("uWidth", window.size.x);
-    shader.uniform("uHeight", window.size.y);
+    // auto shader = assets::getShader("DrawIcon");
+    // shader.bind();
+    // shader.texture("uTexture", ui.m_imageSet->ID);
+    // shader.uniform("uWidth", window.size.x);
+    // shader.uniform("uHeight", window.size.y);
 
-    context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
+    // context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
 
     // for(auto &it : cnt->m_images.first[layer]){
     //     shader.uniform("(uColor)", (colorHex(it.color)));
@@ -66,7 +68,7 @@ void UIDrawer::renderImages(UI::IMGUI &ui, u32 layer){
     //     gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
     // }
 
-    context.errors();
+    // context.errors();
 }
 
 void UIDrawer::renderFonts(UI::IMGUI &ui, u32 layer){

@@ -10,4 +10,5 @@ private:
     UI::IMGUI &ui;
 public:
     UITester(UI::IMGUI &ui) : ui(ui){}
+    void run();
 };

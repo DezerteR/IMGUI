@@ -28,26 +28,29 @@ void ResourceLoader::loadResources(const Yaml &cfg){
     for(auto &set : cfg["ImageSets"]){
         loadImageSet(set);
     }
-
-    loadTextureArray("Decals");
-    loadTextureArray("Materials");
-    loadTextureArray("Terrain");
-    loadTextureArray("Foliage");
-    loadTextureArray("Cgi256");
-    loadCubeMap("Park");
-
-    ModelLoader modelLoader;
-    modelLoader.loadTangents = true;
-    modelLoader.open("../res/models/CommonModels.dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
-    auto names = modelLoader.getNames();
-    for(auto &name : names){
-        auto mesh = modelLoader.beginMesh();
-        modelLoader.load(name);
-        modelLoader.endMesh(mesh);
-
-        assets::addMesh(mesh, name);
+    if(isFile("../res/atlases/")){
+        loadTextureArray("Decals");
+        loadTextureArray("Materials");
+        loadTextureArray("Terrain");
+        loadTextureArray("Foliage");
+        loadTextureArray("Cgi256");
+        loadCubeMap("Park");
     }
-    assets::addVao(modelLoader.build(), "Common");
+
+    if(isFile("../res/models/")){
+        ModelLoader modelLoader;
+        modelLoader.loadTangents = true;
+        modelLoader.open("../res/models/CommonModels.dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
+        auto names = modelLoader.getNames();
+        for(auto &name : names){
+            auto mesh = modelLoader.beginMesh();
+            modelLoader.load(name);
+            modelLoader.endMesh(mesh);
+
+            assets::addMesh(mesh, name);
+        }
+        assets::addVao(modelLoader.build(), "Common");
+    }
 }
 
 /**

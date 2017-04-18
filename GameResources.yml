@@ -1,14 +1,5 @@
 Images:
- - SSAONoise.png
- - bokeh.png
- - GrassDensity.png
- - Perlin_RGB.png
- - ExpRamp.jpg
 ImageSets:
- - Config: Menu
-   Image: Menu.png
- - Config: HUD
-   Image: HUD/Hud_.png
 Fonts:
  - Name: ui_10
    Font: f_10
@@ -46,14 +37,3 @@ Fonts:
  - Name: hud_20
    Font: obv_20
    Symbols: obv_20
-Atlases:
- Terrain:
-  - RockGrassy_N_3.png
-  - Grass_N_2.png
-  - rock_moss_1.png
-  - RockGrassy_N_3.png
-  - 47_Stone_2.png
-Grass:
-  Common:
-    Mesh: Grass
-    Texture: grass.png

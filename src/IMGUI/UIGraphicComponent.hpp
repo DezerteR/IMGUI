@@ -37,7 +37,7 @@ public:
     void push(const u32 drawFlags, const UI::Style &style, HexColor color, const glm::vec4 &box, const u32 layer = 0);
     void push(const UI::DrawFlags drawFlags, const Icon icon);
     void draw(UI::IMGUI &gui, u32 layer){}
-    void change(const UI::DrawFlags drawFlags, const int idx, const HexColor color, const glm::vec4 &box);
+    void change(const UI::DrawFlags drawFlags, const int idx, const HexColor color, const glm::vec4 &box, const u32 layer);
     int size(const UI::DrawFlags drawFlags);
     bool empty(u32 layer){
         return false;

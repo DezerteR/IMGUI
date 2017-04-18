@@ -68,6 +68,7 @@ public:
         return randomBuffers[randomBufferId];
     }
     VAO defaultVAO;
+    u32 currentFbo;
 
     Context(Window &window) : window(window){}
     void reset();
@@ -75,12 +76,17 @@ public:
     void beginFrame();
     void endFrame();
 
-    void setupFbo_11(const Texture &texture);
-    void setupFbo_11_depth(const Texture &texture);
-    void setupFbo_11_depth(const Texture &texture, const Texture &texture2);
-    void setupFbo_12(const Texture &texture);
-    void setupFbo_12(const Texture &texture, const Texture &texture2);
-    void setupFbo_14(const Texture &texture);
+    void setupFBO_11(const Texture &texture);
+    void setupFBO_11(const Texture &texture, const Texture &texture2);
+    void setupFBO_11_depth(const Texture &texture);
+    void setupFBO_11_depth(const Texture &texture, const Texture &texture2);
+    void setupFBO_12(const Texture &texture);
+    void setupFBO_12_wide(const Texture &texture);
+    void setupFBO_12(const Texture &texture, const Texture &texture2);
+    void setupFBO_14(const Texture &texture);
+    void setupFBO_18(const Texture &texture);
+    void unbindFBO();
+    void drawScreen();
 
     bool _errors(const std::string &text, const std::string &file, int line, const std::string &fun);
 };

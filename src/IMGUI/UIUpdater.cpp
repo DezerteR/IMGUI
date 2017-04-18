@@ -47,7 +47,7 @@ void Updater::setMousePosition(int x, int y){
 }
 
 std::shared_ptr<IMGUI> Updater::createUi(){
-    uis.emplace_back(std::make_shared<IMGUI>());
+    uis.emplace_back(std::make_shared<IMGUI>(glm::vec4(0,0, window.size)));
     return uis.back();
 }
 

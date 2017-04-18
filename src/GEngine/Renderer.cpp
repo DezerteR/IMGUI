@@ -8,5 +8,5 @@ Renderer::Renderer(Window &window) : window(window), context(std::make_shared<Co
     context->reset();
 }
 
-void Renderer::beginFrame(){}
-void Renderer::endFrame(){}
+void Renderer::beginFrame(){context->beginFrame();}
+void Renderer::endFrame(){context->endFrame();}
