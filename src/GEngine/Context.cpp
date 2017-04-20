@@ -323,7 +323,7 @@ void Context::beginFrame(){
     gl::DisableVertexAttribArray(0);
     gl::BindTexture(gl::TEXTURE_2D, 0);
 
-    gl::ClearColor(0.25f, 0.25f, 0.2f, 1.f);
+    gl::ClearColor(44.0/256, 62.0/256, 81.0/256, 1.f);
     gl::ClearDepth(1);
     gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
 

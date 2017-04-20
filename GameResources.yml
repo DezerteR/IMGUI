@@ -2,38 +2,26 @@ Images:
 ImageSets:
 Fonts:
  - Name: ui_10
-   Font: f_10
+   Font: ui_10
    Symbols: f_10
  - Name: ui_12
-   Font: f_12
-   Symbols: f_12
+   Font: ui_12
+   Symbols: sym_12
  - Name: ui_14
-   Font: f_14
-   Symbols: f_14
- - Name: ui_16
-   Font: f_16
-   Symbols: f_16
- - Name: ui_18
-   Font: f_18
-   Symbols: f_18
+   Font: ui_14
+   Symbols: sym_12
+ - Name: ui_17
+   Font: ui_17
+   Symbols: sym_12
  - Name: ui_20
-   Font: f_20
-   Symbols: f_20
- - Name: ui_24
-   Font: f_24
-   Symbols: f_24
- - Name: ui_28
-   Font: f_28
-   Symbols: f_28
- - Name: ui_34
-   Font: f_34
-   Symbols: f_34
- - Name: hud_14
-   Font: obv_14
-   Symbols: obv_14
- - Name: hud_18
-   Font: obv_18
-   Symbols: obv_18
- - Name: hud_20
-   Font: obv_20
-   Symbols: obv_20
+   Font: ui_20
+   Symbols: sym_12
+ - Name: ui_25
+   Font: ui_25
+   Symbols: sym_12
+ - Name: ui_32
+   Font: ui_32
+   Symbols: sym_12
+ - Name: ui_48
+   Font: ui_48
+   Symbols: sym_12

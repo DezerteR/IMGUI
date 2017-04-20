@@ -65,6 +65,9 @@ Shader& getShader(const std::string &name){
 UI::Font& getFont(const std::string &name){
     return fonts[name];
 }
+std::unordered_map<std::string, UI::Font>& getFonts(){
+    return fonts;
+}
 
 std::string findArrayWithTextureName(const std::string &name){
     for(auto &array : albedoArrays){

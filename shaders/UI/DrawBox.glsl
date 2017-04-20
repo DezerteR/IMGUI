@@ -31,7 +31,6 @@ in vec2 vPosition;
 
 void main(void){
     outColor = vColor;
-    outColor = vec4(1,1,1,1);
 }
 
 #endif

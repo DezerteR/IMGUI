@@ -33,12 +33,13 @@ public:
         boxes[0].reserve(100);
         boxes[1].reserve(10);
     }
-    void push(const UI::DrawFlags drawFlags, const HexColor color, const glm::vec4 &box, const u32 layer);
-    void push(const u32 drawFlags, const UI::Style &style, HexColor color, const glm::vec4 &box, const u32 layer = 0);
-    void push(const UI::DrawFlags drawFlags, const Icon icon);
+    void push(const int item, const HexColor color, const glm::vec4 &box, const u32 layer);
+    void push(const int item, const glm::vec4 &box, const u32 layer);
+    void push(const int item, const UI::Style &style, HexColor color, const glm::vec4 &box, const u32 layer = 0);
+    void push(const int item, const Icon icon);
     void draw(UI::IMGUI &gui, u32 layer){}
-    void change(const UI::DrawFlags drawFlags, const int idx, const HexColor color, const glm::vec4 &box, const u32 layer);
-    int size(const UI::DrawFlags drawFlags);
+    void change(const int item, const int idx, const glm::vec4 &box, const u32 layer);
+    int size(const int item);
     bool empty(u32 layer){
         return false;
     }

@@ -15,5 +15,5 @@ public:
 
     void renderBoxes(UI::IMGUI &ui, u32 layer);
     void renderImages(UI::IMGUI &ui, u32 layer);
-    void renderFonts(UI::IMGUI &ui, u32 layer);
+    void renderFonts();
 };

@@ -8,6 +8,7 @@
 #include "FontRenderer.hpp"
 #include "UIGraphicComponent.hpp"
 #include "Style.hpp"
+#include "UIUpdater.hpp"
 
 class Window;
 
@@ -44,7 +45,6 @@ struct IMGUIBox
     IMGUIBox& offset(const Box &box){ return offset(box.x, box.y); }
     IMGUIBox& offset(glm::vec2 box){ return offset(box.x, box.y); }
 
-    IMGUIBox& style(StyleID s = StyleID::Basic);
     IMGUIBox& border(int b = 0);
     IMGUIBox& operator()();
 
@@ -153,17 +153,18 @@ struct CurrentItem
     bool hover;
     bool lClicked;
     bool rClicked;
-    int type;
+    int style;
 };
 
 class IMGUI
 {
     CurrentItem item {};
     glm::vec4 bounds;
+    Updater &updater;
 public:
     UIGraphicComponent m_uiGraphic;
 
-    IMGUI(glm::vec4 bounds) : m_uiGraphic(m_style), bounds(bounds){}
+    IMGUI(glm::vec4 bounds, Updater &updater) : m_uiGraphic(m_style), bounds(bounds), updater(updater){}
 
     void printTextEditorValue();
     template<typename T>
@@ -173,17 +174,17 @@ public:
 
     template<typename ...Args>
     IMGUI& button(Args &&...args){
-        // item.type = Style::Button;
+        item.style = Style::Button;
         return rect(args...);
     }
     template<typename ...Args>
     IMGUI& label(Args &&...args){
-        // item.type = Style::Label;
+        item.style = Style::Label;
         return rect(args...);
     }
     template<typename ...Args>
     IMGUI& editbox(Args &&...args){
-        // item.type = Style::Editbox;
+        item.style = Style::Editbox;
         return rect(args...);
     }
 
@@ -236,10 +237,10 @@ public:
     }
     IMGUI& activeElement(const std::string &image);
     IMGUI& button(bool &state);
-    IMGUI& onlClick(std::function<void(void)>fun);
-    IMGUI& onlClick(std::function<void(Box rect)>fun);
-    IMGUI& onrClick(std::function<void(Box rect)>fun);
-    IMGUI& onrClick(std::function<void(void)>fun);
+    IMGUI& onLMB(std::function<void(void)>fun);
+    IMGUI& onLMB(std::function<void(Box rect)>fun);
+    IMGUI& onRMB(std::function<void(Box rect)>fun);
+    IMGUI& onRMB(std::function<void(void)>fun);
 
     IMGUI& onRepeat(std::function<void(void)>fun);
     IMGUI& onRepeat(std::function<void(void)>fun, uint32_t freq);
@@ -388,7 +389,7 @@ public:
     }
     void onGrouplClick(std::function<void(Box rect)>fun){
         if (hasHover(fixRect(m_boxStack[m_boxIndex].m_box))
-            && ks.lClick)
+            && updater.mb.lmbPress)
             fun(fixRect(m_boxStack[m_boxIndex].m_box));
     }
     bool onGroupGrab(std::function<void(Box rect)>fun){
@@ -438,8 +439,6 @@ public:
         m_indentation = indentationLen;
     }
 
-    KeyState ks;
-
     bool captureMouse;
     void updateCounter(float deltaTime){
         accu += deltaTime;
@@ -448,12 +447,6 @@ public:
 
     void updateCounter(uint32_t deltaTime){
         timeFromstart += deltaTime;
-    }
-
-    void style(StyleID id){
-    }
-    Style& getStyle(){
-        return m_style;
     }
 
     std::vector <Box> m_rects;

@@ -218,13 +218,13 @@ bool ResourceLoader::loadObj(std::fstream &file){
     return true;
 }
 
-bool ResourceLoader::loadFonts(std::unordered_map<std::string, UI::Font> &fonts, const Yaml &cfg){
+bool ResourceLoader::loadFonts(const Yaml &cfg){
     for(auto &font : cfg["Fonts"]){
-        loadFont(fonts, font);
+        loadFont(font);
     }
     return true;
 }
-bool ResourceLoader::loadFont(std::unordered_map<std::string, UI::Font> &fonts, const Yaml &cfg){
+bool ResourceLoader::loadFont(const Yaml &cfg){
     try {
         bool success;
         std::string name = cfg["Name"].string();
@@ -232,7 +232,7 @@ bool ResourceLoader::loadFont(std::unordered_map<std::string, UI::Font> &fonts, 
         std::string symbolsName = cfg["Symbols"].string();
         // log("[ FONT ]", name);
 
-        UI::Font &renderer = fonts[name];
+        UI::Font &renderer = assets::getFont(name);
         success &= loadImage(fontName+".png").ID;
         success &= loadImage(symbolsName+".png").ID;
 

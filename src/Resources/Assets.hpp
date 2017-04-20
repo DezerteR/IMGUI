@@ -34,6 +34,7 @@ TextureArray& getRoughnessArray(const std::string &name);
 TextureArray& getCubeMap(const std::string &name);
 Shader& getShader(const std::string &name);
 UI::Font& getFont(const std::string &name);
+std::unordered_map<std::string, UI::Font>& getFonts();
 
 std::string findArrayWithTextureName(const std::string &name);
 std::function<float(const std::string&)> layerSearch(TextureArray&);

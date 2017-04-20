@@ -42,12 +42,12 @@ void Updater::setMousePosition(int x, int y){
     mb.mouseTranslation = glm::vec2(x, y) - mb.mousePosition;
     mb.mouseTranslationNormalized = mb.mouseTranslation / window.size * 0.5f;
 
-    mb.mousePosition = glm::vec2(x, y);
+    mb.mousePosition = glm::vec2(x, window.size.y - y);
     mb.relativeMousePosition = glm::vec2(x, y)/window.size;
 }
 
 std::shared_ptr<IMGUI> Updater::createUi(){
-    uis.emplace_back(std::make_shared<IMGUI>(glm::vec4(0,0, window.size)));
+    uis.emplace_back(std::make_shared<IMGUI>(glm::vec4(0,0, window.size), *this));
     return uis.back();
 }
 

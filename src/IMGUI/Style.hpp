@@ -1,81 +1,37 @@
 #pragma once
-#include <string>
+#include "Common.hpp"
+
 namespace UI{
 
 struct Style
 {
     std::unordered_map<int, u32> colors;
-    Style(){
-        // colors[Button & None] =
-        // colors[Button & Hover] =
-        // colors[Button & Press] =
-        // colors[Label & None] =
-        // colors[Label & Hover] =
-        // colors[Editbox & None] =
-        // colors[Editbox & Hover] =
-        // colors[Editbox & Press] =
-        // colors[Editbox & Active] =
-        // colors[Box & None] =
-    }
+    Style();
 
-    enum type {
-        Background = 0b0001,
-        Label = 0b0010,
-        Button = 0b0111,
-        Editbox = 0b1111,
+    enum hash_key {
+        /// Items
+        Button =  0b1111'00000'0001,
+        Label =   0b1101'00000'0010,
+        Editbox = 0b1111'00000'0100,
+        Box =     0b0001'00000'1000,
+        Background = 0b0001'00001'0000,
+        Slider =  0b1111'00010'0000,
+        Slide =   0b1111'00100'0000,
+        Image =   0b1111'01000'0000,
+        Font =    0b0001'10000'0000,
+        /// Actions
+        None =    0b0000'11111'1111,
+        Hover =   0b0010'11111'1111,
+        Press =   0b0100'11111'1111,
+        Active =  0b1000'11111'1111,
     };
-    enum action {
-        None, Hover, Pressed
-    };
-
-    // enum hash_key {
-    //     /// Items
-    //     Button =  0b11110001,
-    //     Label =   0b11010010,
-    //     Editbox = 0b11110100,
-    //     Box =     0b00011000,
-    //     /// Actions
-    //     None =    0b00011111,
-    //     Hover =   0b00101111,
-    //     Press =   0b01001111,
-    //     Active =  0b10001111,
-
-    // };
 
     int padding;
-    struct {
-        HexColor color;
-    } background;
-    struct {
-        HexColor color;
-        HexColor hovered;
-        HexColor pressed;
-    } button;
-    struct {
-        HexColor color;
-        HexColor hovered;
-    } label;
-    struct {
-        HexColor color;
-        HexColor hovered;
-        HexColor pressed;
-        HexColor active;
-    } editbox;
-    struct {
-        HexColor color;
-    } image;
     struct {
         std::string name;
         HexColor color;
     } font;
     std::string shader;
-};
-enum class StyleID : int32_t
-{
-    Basic = 0,
-    Light = 1,
-    Dark = 2,
-    Label = 3,
 };
 
 enum DrawFlags : int

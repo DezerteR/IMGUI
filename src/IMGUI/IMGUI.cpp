@@ -1,5 +1,6 @@
 #include "IMGUI.hpp"
 #include "Yaml.hpp"
+#include "Assets.hpp"
 
 extern const float pi;
 
@@ -12,9 +13,9 @@ bool GetInput;
 IMGUI& IMGUI::circleShape(const Box &circle){
 
     item.box = Box(circle.x, circle.y, 20, 20);
-    this->m_hover = (glm::distance2(circle.xy(), ks.mousePosition) < circle.z*circle.z) && !captureMouse;
-    this->m_lClicked = this->m_hover && this->ks.lClick && !captureMouse;
-    this->m_rClicked = this->m_hover && this->ks.rClick && !captureMouse;
+    item.hover = (glm::distance2(circle.xy(), updater.mb.mousePosition) < circle.z*circle.z) && !captureMouse;
+    item.lClicked = item.hover && updater.mb.lmbPress && !captureMouse;
+    item.rClicked = item.hover && updater.mb.rmbPress && !captureMouse;
 
     return *this;
 }
@@ -28,38 +29,38 @@ IMGUI& IMGUI::rotatedBoxShape(Box &startEnd, float distance, float &proportion){
     bool hovered = false;
     float lengthSquared = glm::distance2(startEnd.xy(), startEnd.zw());
 
-    float t = glm::dot(ks.mousePosition-startEnd.xy(), startEnd.zw() - startEnd.xy())/lengthSquared;
+    float t = glm::dot(updater.mb.mousePosition-startEnd.xy(), startEnd.zw() - startEnd.xy())/lengthSquared;
     proportion = t;
 
     if(t < 0.f)
-            hovered = glm::distance2(ks.mousePosition, startEnd.xy()) < distance*distance;
+            hovered = glm::distance2(updater.mb.mousePosition, startEnd.xy()) < distance*distance;
     else if(t > 1.f)
-            hovered = glm::distance2(ks.mousePosition, startEnd.xy()) < distance*distance;
+            hovered = glm::distance2(updater.mb.mousePosition, startEnd.xy()) < distance*distance;
     else {
             glm::vec2 projection = startEnd.xy() + t*(startEnd.zw() - startEnd.xy());
-            hovered = glm::distance2(ks.mousePosition, projection) < distance*distance;
+            hovered = glm::distance2(updater.mb.mousePosition, projection) < distance*distance;
     }
 
     item.box = Box((startEnd.x + startEnd.z)/2, (startEnd.y + startEnd.w)/2, 20, 20);
-    this->m_lClicked = hovered && this->ks.lClick && !captureMouse;
-    this->m_rClicked = hovered && this->ks.rClick && !captureMouse;
+    item.lClicked = hovered && updater.mb.lmbPress && !captureMouse;
+    item.rClicked = hovered && updater.mb.rmbPress && !captureMouse;
 
     return *this;
 }
 IMGUI& IMGUI::customShape(std::function<bool(glm::vec2)> &fun){
-    bool hovered = fun(ks.mousePosition);
+    bool hovered = fun(updater.mb.mousePosition);
 
     item.box = Box(0,0,0,0);
-    this->m_lClicked = hovered && this->ks.lClick && !captureMouse;
-    this->m_rClicked = hovered && this->ks.rClick && !captureMouse;
+    item.lClicked = hovered && updater.mb.lmbPress && !captureMouse;
+    item.rClicked = hovered && updater.mb.rmbPress && !captureMouse;
 
     return *this;
 }
 IMGUI& IMGUI::customShape(bool hovered){
 
     item.box = Box(0,0,0,0);
-    this->m_lClicked = hovered && this->ks.lClick && !captureMouse;
-    this->m_rClicked = hovered && this->ks.rClick && !captureMouse;
+    item.lClicked = hovered && updater.mb.lmbPress && !captureMouse;
+    item.rClicked = hovered && updater.mb.rmbPress && !captureMouse;
 
     return *this;
 }
@@ -67,9 +68,9 @@ IMGUI& IMGUI::image(const std::string &name){
     this->m_image = m_imageSet->set[name];
     item.box = currentBox().getSpawnPoint(this->m_image.rect);
     this->m_image.rect = item.box;
-    this->m_hover = hasHover(item.box) && !captureMouse;
-    this->m_lClicked = this->m_hover && this->ks.lClick;
-    this->m_rClicked = this->m_hover && this->ks.rClick;
+    item.hover = hasHover(item.box) && !captureMouse;
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
     this->m_imageEnbl = true;
     return *this;
 }
@@ -79,9 +80,9 @@ IMGUI& IMGUI::image(int x, int y, const std::string &name){
     this->m_image.rect[1] = y;
     item.box = this->m_image.rect;
 
-    this->m_hover = hasHover(item.box);
-    this->m_lClicked = this->m_hover && this->ks.lClick;
-    this->m_rClicked = this->m_hover && this->ks.rClick;
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
     this->m_imageEnbl = true;
     this->m_buttonFlags |= NoInsertion;
     return *this;
@@ -89,18 +90,18 @@ IMGUI& IMGUI::image(int x, int y, const std::string &name){
 IMGUI& IMGUI::rect(){
 
     item.box = currentBox().getSpawnPoint(item.box);
-    this->m_hover = hasHover(item.box);
-    this->m_lClicked = this->m_hover && this->ks.lClick;
-    this->m_rClicked = this->m_hover && this->ks.rClick;
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
 
     return *this;
 }
 IMGUI& IMGUI::rect(Box r){
 
     item.box = r;
-    this->m_hover = hasHover(item.box);
-    this->m_lClicked = this->m_hover && this->ks.lClick;
-    this->m_rClicked = this->m_hover && this->ks.rClick;
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
 
     this->m_buttonFlags |= NoInsertion;
     return *this;
@@ -108,43 +109,43 @@ IMGUI& IMGUI::rect(Box r){
 IMGUI& IMGUI::rect(int x, int y, int w, int h){
 
     item.box = Box(x,y,w,h);
-    this->m_hover = hasHover(item.box);
-    this->m_lClicked = this->m_hover && this->ks.lClick;
-    this->m_rClicked = this->m_hover && this->ks.rClick;
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
     this->m_buttonFlags |= NoInsertion;
     return *this;
 }
 IMGUI& IMGUI::rect(glm::vec2 xy, int w, int h){
 
     item.box = Box(xy.x,xy.y,w,h);
-    this->m_hover = hasHover(item.box);
-    this->m_lClicked = this->m_hover && this->ks.lClick;
-    this->m_rClicked = this->m_hover && this->ks.rClick;
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
     this->m_buttonFlags |= NoInsertion;
     return *this;
 }
 IMGUI& IMGUI::rect(glm::vec2 xy, glm::vec2 wh){
 
     item.box = Box(xy.x,xy.y,wh.x,wh.y);
-    this->m_hover = hasHover(item.box);
-    this->m_lClicked = this->m_hover && this->ks.lClick;
-    this->m_rClicked = this->m_hover && this->ks.rClick;
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
     this->m_buttonFlags |= NoInsertion;
     return *this;
 }
 IMGUI& IMGUI::rect(int w, int h){
 
     item.box = currentBox().getSpawnPoint(Box(0,0,w,h));
-    this->m_hover = hasHover(item.box);
-    this->m_lClicked = this->m_hover && this->ks.lClick;
-    this->m_rClicked = this->m_hover && this->ks.rClick;
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
     return *this;
 }
 IMGUI& IMGUI::rect(int w, int h, HexColor color){
     item.box = currentBox().getSpawnPoint(Box(0,0,w,h));
-    this->m_hover = hasHover(item.box);
-    this->m_lClicked = this->m_hover && this->ks.lClick;
-    this->m_rClicked = this->m_hover && this->ks.rClick;
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
 
     m_uiGraphic.push(Label, color, item.box, currentLayer);
 
@@ -154,9 +155,9 @@ IMGUI& IMGUI::rect(int w, int h, HexColor color){
 }
 IMGUI& IMGUI::rect(HexColor color){
     item.box = currentBox().getSpawnPoint(Box(0,0,20,20));
-    this->m_hover = hasHover(item.box);
-    this->m_lClicked = this->m_hover && this->ks.lClick;
-    this->m_rClicked = this->m_hover && this->ks.rClick;
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
 
     m_uiGraphic.push(Label, color, item.box, currentLayer);
 
@@ -167,9 +168,9 @@ IMGUI& IMGUI::rect(HexColor color){
 IMGUI& IMGUI::rect(Box r, HexColor color){
 
     item.box = r;
-    this->m_hover = hasHover(item.box);
-    this->m_lClicked = this->m_hover && this->ks.lClick;
-    this->m_rClicked = this->m_hover && this->ks.rClick;
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
 
     m_uiGraphic.push(Label, color, item.box, currentLayer);
 
@@ -181,9 +182,9 @@ IMGUI& IMGUI::rect(Box r, HexColor color){
 IMGUI& IMGUI::rect(int x, int y, int w, int h, HexColor color){
 
     item.box = Box(x,y,w,h);
-    this->m_hover = hasHover(item.box);
-    this->m_lClicked = this->m_hover && this->ks.lClick;
-    this->m_rClicked = this->m_hover && this->ks.rClick;
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
 
     m_uiGraphic.push(Label, color, item.box, currentLayer);
 
@@ -230,9 +231,9 @@ IMGUI& IMGUI::offset(float x, float y){
     item.box.x += floor(u);
     item.box.y += floor(v);
 
-    this->m_hover = hasHover(item.box);
-    this->m_lClicked = this->m_hover && this->ks.lClick;
-    this->m_rClicked = this->m_hover && this->ks.rClick;
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
 
     return *this;
 }
@@ -244,61 +245,61 @@ IMGUI& IMGUI::activeElement(const std::string &image){
     return *this;
 }
 IMGUI& IMGUI::button(bool &state){
-    if(this->m_lClicked)
+    if(item.lClicked)
         state = !state;;
     this->m_active = state;
     return *this;
 }
 
-IMGUI& IMGUI::onlClick(std::function<void(void)>fun){
-    if(this->m_lClicked)
+IMGUI& IMGUI::onLMB(std::function<void(void)>fun){
+    if(item.lClicked)
         fun();
     return *this;
 }
-IMGUI& IMGUI::onlClick(std::function<void(Box r)>fun){
-    if(this->m_lClicked)
+IMGUI& IMGUI::onLMB(std::function<void(Box r)>fun){
+    if(item.lClicked)
         fun(this->m_lastBox);
     return *this;
 }
-IMGUI& IMGUI::onrClick(std::function<void(Box r)>fun){
-    if(this->m_lClicked)
+IMGUI& IMGUI::onRMB(std::function<void(Box r)>fun){
+    if(item.lClicked)
         fun(this->m_lastBox);
     return *this;
 }
-IMGUI& IMGUI::onrClick(std::function<void(void)>fun){
-    if(this->m_rClicked)
+IMGUI& IMGUI::onRMB(std::function<void(void)>fun){
+    if(item.rClicked)
         fun();
     return *this;
 }
 
 IMGUI& IMGUI::onRepeat(std::function<void(void)>fun){
-    if(this->m_hover && this->ks.lClicked)
+    if(item.hover && updater.mb.lmbPress)
         fun();
     return *this;
 }
 IMGUI& IMGUI::onRepeat(std::function<void(void)>fun, uint32_t freq){
-    if(this->m_hover && this->ks.lClicked && (timeFromstart%freq == 0))
+    if(item.hover && updater.mb.lmbPress && (timeFromstart%freq == 0))
         fun();
     return *this;
 }
 IMGUI& IMGUI::onRepeat(std::function<void(Box)>fun){
-    if(this->m_hover && this->ks.lClicked)
+    if(item.hover && updater.mb.lmbPress)
         fun(this->m_lastBox);
     return *this;
 }
 IMGUI& IMGUI::onrRepeat(std::function<void(void)>fun){
-    if(this->m_hover && this->ks.rClicked)
+    if(item.hover && updater.mb.rmbPress)
         fun();
     return *this;
 }
 
 IMGUI& IMGUI::onHover(std::function<void(void)>fun){
-    if(this->m_hover)
+    if(item.hover)
         fun();
     return *this;
 }
 IMGUI& IMGUI::onHover(std::function<void(Box rect)>fun){
-    if(this->m_hover)
+    if(item.hover)
         fun(this->m_lastBox);
     return *this;
 }
@@ -332,16 +333,16 @@ IMGUI& IMGUI::text(const std::string &text, const std::string &font, int flag, i
     this->m_flag |= flag;
     this->m_text = text;
     this->m_caretPosition = caretPosition;
-    m_textOffset += fonts[font].render(m_text, item.box.xy() + glm::vec2(m_textOffset+3, floor(item.box.w/2.f - fonts[font].height/2)), m_fontColor ? m_fontColor : m_style.font.color, this->m_caretPosition);
+    m_textOffset += assets::getFont(font).render(m_text, item.box.xy() + glm::vec2(m_textOffset+3, floor(item.box.w/2.f - assets::getFont(font).height/2)), m_fontColor ? m_fontColor : m_style.font.color, this->m_caretPosition);
 
     if(this->m_flag & CenterText){
-        fonts[font].move( (item.box.z - m_textOffset)/2-3, 0);
+        assets::getFont(font).move( (item.box.z - m_textOffset)/2-3, 0);
     }
     else if(this->m_flag & TextToRight){
-        fonts[font].move( (item.box.z - m_textOffset)-3, 0);
+        assets::getFont(font).move( (item.box.z - m_textOffset)-3, 0);
     }
     if(LastTextHeight > 0)
-        fonts[font].move( 0, LastTextHeight/2);
+        assets::getFont(font).move( 0, LastTextHeight/2);
 
     return *this;
 }
@@ -349,39 +350,39 @@ IMGUI& IMGUI::text(const std::string &text, int flag, int caretPosition){
     this->m_flag |= flag;
     this->m_text = text;
     this->m_caretPosition = caretPosition;
-    m_textOffset += fonts[m_font].render(text, item.box.xy() + glm::vec2(m_textOffset+3, floor(item.box.w/2.f - fonts[m_font].height/2.f)), m_fontColor, this->m_caretPosition);
+    m_textOffset += assets::getFont(m_font).render(text, item.box.xy() + glm::vec2(m_textOffset+3, floor(item.box.w/2.f - assets::getFont(m_font).height/2.f)), m_fontColor, this->m_caretPosition);
 
     if(this->m_flag & CenterText){
-        fonts[m_font].move( (item.box.z - m_textOffset)/2-3, 0);
+        assets::getFont(m_font).move( (item.box.z - m_textOffset)/2-3, 0);
     }
     else if(this->m_flag & TextToRight){
-        fonts[m_font].move( (item.box.z - m_textOffset)-5, 0);
+        assets::getFont(m_font).move( (item.box.z - m_textOffset)-5, 0);
     }
     return *this;
 }
 IMGUI& IMGUI::text(const std::u16string &text, const std::string &font, int flag, int caretPosition){
     this->m_flag |= flag;
     this->m_caretPosition = caretPosition;
-    m_textOffset += fonts[font].render(text, item.box.xy() + glm::vec2(m_textOffset+3, floor(item.box.w/2.f - fonts[font].height/2)), m_fontColor ? m_fontColor : m_style.font.color, this->m_caretPosition);
+    m_textOffset += assets::getFont(font).render(text, item.box.xy() + glm::vec2(m_textOffset+3, floor(item.box.w/2.f - assets::getFont(font).height/2)), m_fontColor ? m_fontColor : m_style.font.color, this->m_caretPosition);
 
     if(this->m_flag & CenterText){
-        fonts[font].move( (item.box.z - m_textOffset)/2-3, 0);
+        assets::getFont(font).move( (item.box.z - m_textOffset)/2-3, 0);
     }
     else if(this->m_flag & TextToRight){
-        fonts[font].move( (item.box.z - m_textOffset)-3, 0);
+        assets::getFont(font).move( (item.box.z - m_textOffset)-3, 0);
     }
     return *this;
 }
 IMGUI& IMGUI::text(const std::u16string &text, int flag, int caretPosition){
     this->m_flag |= flag;
     this->m_caretPosition = caretPosition;
-    m_textOffset += fonts[m_font].render(text, item.box.xy() + glm::vec2(m_textOffset+3, floor(item.box.w/2.f - fonts[m_font].height/2)), m_fontColor ? m_fontColor : m_style.font.color, this->m_caretPosition);
+    m_textOffset += assets::getFont(m_font).render(text, item.box.xy() + glm::vec2(m_textOffset+3, floor(item.box.w/2.f - assets::getFont(m_font).height/2)), m_fontColor ? m_fontColor : m_style.font.color, this->m_caretPosition);
 
     if(this->m_flag & CenterText){
-        fonts[m_font].move( (item.box.z - m_textOffset)/2-3, 0);
+        assets::getFont(m_font).move( (item.box.z - m_textOffset)/2-3, 0);
     }
     else if(this->m_flag & TextToRight){
-        fonts[m_font].move( (item.box.z - m_textOffset)-3, 0);
+        assets::getFont(m_font).move( (item.box.z - m_textOffset)-3, 0);
     }
     return *this;
 }
@@ -404,16 +405,16 @@ IMGUI& IMGUI::getRect(Box &r){
 }
 
 IMGUI& IMGUI::mouseOffset(Box &out){
-    if(this->m_hover){
-        out = item.box - Box(ks.mousePosition, 0,0);
+    if(item.hover){
+        out = item.box - Box(updater.mb.mousePosition, 0,0);
         out.z = 0;
         out.w = 0;
     }
     return *this;
 }
 IMGUI& IMGUI::mouseOffset(glm::vec2 &out){
-    if(this->m_hover){
-        out = item.box.xy() - ks.mousePosition;
+    if(item.hover){
+        out = item.box.xy() - updater.mb.mousePosition;
     }
     return *this;
 }
@@ -502,14 +503,14 @@ IMGUI& IMGUI::edit(const std::string &value, std::function<void(const std::strin
         text(value, 0);
 
     /// --------
-    if(!(this->m_underEdition && this->m_lClicked)|| this->force()){
+    if(!(this->m_underEdition && item.lClicked)|| this->force()){
         this->textEditor.valuePointer = identifier;
         this->textEditor.currentString = value;
         this->textEditor.m_state = true;
         this->textEditor.m_caretPosition = value.size();
         this->textEditor.m_typeInfo = TypeInfo::EMPTY;
     }
-    else if(this->m_underEdition && this->ks.lClick && !this->m_hover){
+    else if(this->m_underEdition && updater.mb.lmbPress && !item.hover){
         this->textEditor.breakEdition();
     }
 
@@ -547,18 +548,18 @@ IMGUI& IMGUI::slider(float &value, float min, float max){
             ,sliderW
         );
 
-    if(this->m_hover && ks.lClick){
+    if(item.hover && updater.mb.lmbPress){
         currentSlider = (void*)&value;
         this->m_underEdition = true;
     }
-    if(currentSlider == (void*)&value and ks.lClicked){
-        value = glm::clamp((ks.mousePosition.x - slide.x)/slide.z, 0.f, 1.f)*(max-min)+min;
+    if(currentSlider == (void*)&value and updater.mb.lmbRepeat){
+        value = glm::clamp((updater.mb.mousePosition.x - slide.x)/slide.z, 0.f, 1.f)*(max-min)+min;
         slide += Box(-1,-1,2,2);
     }
     // else currentSlider = nullptr;
 
-    m_uiGraphic.push(UI::Hover, m_style.button.color, slide, currentLayer);
-    m_uiGraphic.push(UI::Hover, m_style.button.color, slider_, currentLayer);
+    m_uiGraphic.push(Style::Slide, slide, currentLayer);
+    m_uiGraphic.push(Style::Slider, slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::slider(double &value, double min, double max){
@@ -578,18 +579,18 @@ IMGUI& IMGUI::slider(double &value, double min, double max){
             ,sliderW
         );
 
-    if(this->m_hover && ks.lClick){
+    if(item.hover && updater.mb.lmbPress){
         currentSlider = (void*)&value;
         this->m_underEdition = true;
     }
-    if(currentSlider == (void*)&value and ks.lClicked){
-        value = glm::clamp((ks.mousePosition.x - slide.x)/slide.z, 0.f, 1.f)*(max-min)+min;
+    if(currentSlider == (void*)&value and updater.mb.lmbRepeat){
+        value = glm::clamp((updater.mb.mousePosition.x - slide.x)/slide.z, 0.f, 1.f)*(max-min)+min;
         slide += Box(-1,-1,2,2);
     }
     // else currentSlider = nullptr;
 
-    m_uiGraphic.push(UI::Hover, m_style.button.color, slide, currentLayer);
-    m_uiGraphic.push(UI::Hover, m_style.button.color, slider_, currentLayer);
+    m_uiGraphic.push(Style::Slide, slide, currentLayer);
+    m_uiGraphic.push(Style::Slider, slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::slider(i64 &value, i64 min, i64 max){
@@ -609,17 +610,17 @@ IMGUI& IMGUI::slider(i64 &value, i64 min, i64 max){
             ,sliderW
         );
 
-    if(this->m_hover && ks.lClick){
+    if(item.hover && updater.mb.lmbPress){
         currentSlider = (void*)&value;
     }
-    if(currentSlider == (void*)&value and ks.lClicked){
-        value = glm::clamp((ks.mousePosition.x - slide.x)/slide.z, 0.f, 1.f)*(max-min)+min;
+    if(currentSlider == (void*)&value and updater.mb.lmbRepeat){
+        value = glm::clamp((updater.mb.mousePosition.x - slide.x)/slide.z, 0.f, 1.f)*(max-min)+min;
         slide += Box(-1,-1,2,2);
     }
     // else currentSlider = nullptr;
 
-    m_uiGraphic.push(UI::Hover, m_style.button.color, slide, currentLayer);
-    m_uiGraphic.push(UI::Hover, m_style.button.color, slider_, currentLayer);
+    m_uiGraphic.push(Style::Slide, slide, currentLayer);
+    m_uiGraphic.push(Style::Slider, slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::slider(u32 &value, u32 min, u32 max){
@@ -639,17 +640,17 @@ IMGUI& IMGUI::slider(u32 &value, u32 min, u32 max){
             ,sliderW
         );
 
-    if(this->m_hover && ks.lClick){
+    if(item.hover && updater.mb.lmbPress){
         currentSlider = (void*)&value;
     }
-    if(currentSlider == (void*)&value and ks.lClicked){
-        value = glm::clamp((ks.mousePosition.x - slide.x)/slide.z, 0.f, 1.f)*(max-min)+min;
+    if(currentSlider == (void*)&value and updater.mb.lmbRepeat){
+        value = glm::clamp((updater.mb.mousePosition.x - slide.x)/slide.z, 0.f, 1.f)*(max-min)+min;
         slide += Box(-1,-1,2,2);
     }
     // else currentSlider = nullptr;
 
-    m_uiGraphic.push(UI::Hover, m_style.button.color, slide, currentLayer);
-    m_uiGraphic.push(UI::Hover, m_style.button.color, slider_, currentLayer);
+    m_uiGraphic.push(Style::Slide, slide, currentLayer);
+    m_uiGraphic.push(Style::Slider, slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::slider(i32 &value, i32 min, i32 max){
@@ -669,24 +670,24 @@ IMGUI& IMGUI::slider(i32 &value, i32 min, i32 max){
             ,sliderW
         );
 
-    if(this->m_hover && ks.lClick){
+    if(item.hover && updater.mb.lmbPress){
         currentSlider = (void*)&value;
     }
-    if(currentSlider == (void*)&value and ks.lClicked){
-        value = glm::clamp((ks.mousePosition.x - slide.x)/slide.z, 0.f, 1.f)*(max-min)+min;
+    if(currentSlider == (void*)&value and updater.mb.lmbRepeat){
+        value = glm::clamp((updater.mb.mousePosition.x - slide.x)/slide.z, 0.f, 1.f)*(max-min)+min;
         slide += Box(-1,-1,2,2);
     }
     // else currentSlider = nullptr;
 
-    m_uiGraphic.push(UI::Hover, m_style.button.color, slide, currentLayer);
-    m_uiGraphic.push(UI::Hover, m_style.button.color, slider_, currentLayer);
+    m_uiGraphic.push(Style::Slide, slide, currentLayer);
+    m_uiGraphic.push(Style::Slider, slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::operator () (int flags){
-    if(this->m_lClicked || this->m_rClicked)
+    if(item.lClicked || item.rClicked)
         item.box += Box(-1,-1,2,2);
 
-    // if((flags & UI::Hover) && this->m_hover)
+    // if((flags & UI::Hover) && item.hover)
     //      m_uiGraphic.push(UI::Hover, m_style.hover, item.box, currentLayer);
     // else if(flags & UI::Editable)
     //      m_uiGraphic.push(UI::Editable, m_style.editBox, item.box, currentLayer);
@@ -696,22 +697,24 @@ IMGUI& IMGUI::operator () (int flags){
          currentBox().insertRect(item.box);
 
     // m_uiGraphic.push(flags, m_style, this->m_color, item.box, currentLayer);
-    m_uiGraphic.push(flags, m_style, this->m_color, item.box, currentLayer);
+    if(item.hover and (item.lClicked or item.rClicked or updater.mb.lmbRepeat or updater.mb.rmbRepeat)) item.style &= Style::Press;
+    else if(item.hover) item.style &= Style::Hover;
+    else item.style &= Style::None;
+    m_uiGraphic.push(item.style, m_style, this->m_color, item.box, currentLayer);
 
     if(this->m_imageEnbl){
         // this->m_image.color = this->m_color;
         // this->m_image.color = this->m_forceColor ? m_color : m_style.imageColor;
-        this->m_image.color = this->m_color ? this->m_color : m_style.image.color;
-        m_uiGraphic.push(UI::Image, this->m_image);
+        m_uiGraphic.push(Style::Image, this->m_image);
     }
     if (flags & UI::CaptureMouse){
-        if(this->m_lClicked || this->m_rClicked){
-            this->ks.lClick = false;
-            this->ks.rClick = false;
-            this->ks.mousePosition = glm::vec2(-500, -500);
+        if(item.lClicked || item.rClicked){
+            updater.mb.lmbPress = false;
+            updater.mb.rmbPress = false;
+            this->updater.mb.mousePosition = glm::vec2(-500, -500);
             this->captureMouse = true;
         }
-        if(this->m_lClicked&& this->m_hover){
+        if(item.lClicked&& item.hover){
             this->captureMouse = true;
         }
     }
@@ -747,15 +750,15 @@ bool IMGUI::overlay(Box &rect, Box &point){
 }
 bool IMGUI::hasHover(Box rect){
     if(currentLayer == maxLayer)
-        return     (ks.mousePosition.x >= rect.x && ks.mousePosition.x < rect.x+rect.z &&
-                    ks.mousePosition.y >= rect.y && ks.mousePosition.y < rect.y+rect.w) && !captureMouse;
+        return     (updater.mb.mousePosition.x >= rect.x && updater.mb.mousePosition.x < rect.x+rect.z &&
+                    updater.mb.mousePosition.y >= rect.y && updater.mb.mousePosition.y < rect.y+rect.w) && !captureMouse;
     return false;
 }
 bool IMGUI::outOfTable(){
     auto &&rect = fixRect(m_boxStack[m_boxIndex+1].m_box);
     // if(currentLayer == maxLayer)
-        return this->ks.lClick && !(ks.mousePosition.x >= rect.x && ks.mousePosition.x < rect.x+rect.z &&
-                    ks.mousePosition.y >= rect.y && ks.mousePosition.y < rect.y+rect.w);
+        return updater.mb.lmbPress && !(updater.mb.mousePosition.x >= rect.x && updater.mb.mousePosition.x < rect.x+rect.z &&
+                    updater.mb.mousePosition.y >= rect.y && updater.mb.mousePosition.y < rect.y+rect.w);
 
 
 }
@@ -779,7 +782,7 @@ void IMGUI::begin(){
     m_boxStack[0].m_box = bounds;
     m_collRects.clear();
     this->captureMouse = false;
-    if(ks.lClicked)
+    if(updater.mb.lmbRepeat)
         accu = 0.f;
     if(accu > 1/frequency){
         accu = 0.f;
@@ -789,7 +792,7 @@ void IMGUI::begin(){
         accu2 = 0.f;
         MS500OSCILATOR = !MS500OSCILATOR;
     }
-    if(not ks.lClicked) currentSlider = nullptr;
+    if(not updater.mb.lmbRepeat) currentSlider = nullptr;
     restoreDefaults();
 }
 void IMGUI::end(){
@@ -864,7 +867,7 @@ IMGUIBox& IMGUIBox::box(int flags, Box spawnPosition, IMGUI *_imgui){
 
     if(m_flags & Draw){
         m_rectIdx = imgui->m_uiGraphic.size(UI::BigBox);
-        imgui->m_uiGraphic.push(UI::BigBox, imgui->m_style.background.color, spawnPosition, _imgui->currentLayer);
+        imgui->m_uiGraphic.push(Style::Box, spawnPosition, _imgui->currentLayer);
     }
 
     return *this;
@@ -970,7 +973,7 @@ IMGUIBox& IMGUI::endBox(){
     rect = fixRect(rect);
 
     if(group.m_flags & Draw){
-        m_uiGraphic.change(UI::BigBox, group.m_rectIdx, m_style.background.color, rect, currentLayer);
+        m_uiGraphic.change(Style::Box, group.m_rectIdx, rect, currentLayer);
     }
 
     m_boxStack[m_boxIndex].m_box = rect;
@@ -1236,10 +1239,10 @@ void IMGUI::printTextEditorValue(){
 }
 template<typename T>
 void IMGUI::processTE(T &value, int base){
-    if(!this->m_underEdition && this->m_lClicked || this->force()){
+    if(!this->m_underEdition && item.lClicked || this->force()){
         this->textEditor.setValueToEdit(value, base);
     }
-    else if(this->m_underEdition && this->ks.lClick && !this->m_hover){
+    else if(this->m_underEdition && updater.mb.lmbPress && !item.hover){
         this->textEditor.breakEdition();
     }
 
@@ -1250,10 +1253,10 @@ void IMGUI::processTE(T &value, int base){
 }
 template<typename T>
 void IMGUI::processTE(T &value){
-    if(!(this->m_underEdition && this->m_lClicked)|| this->force()){
+    if(!(this->m_underEdition && item.lClicked)|| this->force()){
         this->textEditor.setValueToEdit(value);
     }
-    else if(this->m_underEdition && this->ks.lClick && !this->m_hover){
+    else if(this->m_underEdition && updater.mb.lmbPress && !item.hover){
         this->textEditor.breakEdition();
     }
 
@@ -1520,19 +1523,5 @@ TypeInfo recognizeType<double>(){
 }
 
 void loadStyles(IMGUI &ui){
-    const Yaml &styles = loadYaml("../styles.yml");
-    auto LoadStyle = [&styles, &ui](int idx, std::string styleName){
-        auto &cfg = styles["Styles"][styleName];
-        ui.m_style = UI::Style {};
-        ui.m_style.background.color = cfg["background"].color();
-        ui.m_style.button.color     = cfg["button"].color();
-        ui.m_style.button.hovered     = cfg["hover"].color();
-        ui.m_style.editbox.color    = cfg["editBox"].color();
-        ui.m_style.font.color  = cfg["fontColor"].color();
-        ui.m_style.image.color = cfg["imageColor"].color();
-        ui.m_style.label.color      = cfg["label"].color();
-        ui.m_style.font.name = cfg["font"].string();
-    };
-    LoadStyle(0, "Basic");
 }
 }

@@ -40,7 +40,7 @@ public:
         ResourceLoader loader;
         loader.loadShaders();
         loader.loadResources(resources);
-        // loader.loadFonts(Global::main.fonts, resources);
+        loader.loadFonts(resources);
     }
 
     void run(){
@@ -51,8 +51,8 @@ public:
         UITester tester(*ui);
         while(not quit){
             auto dt = msecLoopDeltaTime();
-            ui->begin();
             uiUpdater->update(dt);
+            ui->begin();
 
             glfwPollEvents();
 
@@ -82,7 +82,7 @@ public:
         }
     }
     void mouseButtonCallback(int button, int action, int mods){
-        uiUpdater->setMouseAction(button, mods);
+        uiUpdater->setMouseAction(button, action);
     }
     void cursorPosCallback(double xpos, double ypos){
         uiUpdater->setMousePosition(xpos, ypos);
