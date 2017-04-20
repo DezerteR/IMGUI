@@ -8,13 +8,16 @@ namespace UI {
     extern int g_UILayer;
 }
 void UIGraphicComponent::push(const int item, const HexColor color, const glm::vec4 &box, const u32 layer){
+    if(not item) return;
     boxes[layer].push_back({box, style.colors[item]});
 }
 void UIGraphicComponent::push(const int item, const glm::vec4 &box, const u32 layer){
+    if(not item) return;
     boxes[layer].push_back({box, style.colors[item]});
 }
 
 void UIGraphicComponent::push(const int item, const UI::Style &styl651e, HexColor color, const glm::vec4 &box, const u32 layer){
+    if(not item) return;
     boxes[layer].push_back({box, style.colors[item]});
 }
 

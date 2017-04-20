@@ -558,8 +558,8 @@ IMGUI& IMGUI::slider(float &value, float min, float max){
     }
     // else currentSlider = nullptr;
 
-    m_uiGraphic.push(Style::Slide, slide, currentLayer);
-    m_uiGraphic.push(Style::Slider, slider_, currentLayer);
+    m_uiGraphic.push(Style::Slide & (this->m_underEdition ? Style::None : Style::Press), slide, currentLayer);
+    m_uiGraphic.push(Style::Slider & (this->m_underEdition ? Style::None : Style::Press), slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::slider(double &value, double min, double max){
@@ -589,8 +589,8 @@ IMGUI& IMGUI::slider(double &value, double min, double max){
     }
     // else currentSlider = nullptr;
 
-    m_uiGraphic.push(Style::Slide, slide, currentLayer);
-    m_uiGraphic.push(Style::Slider, slider_, currentLayer);
+    m_uiGraphic.push(Style::Slide & (this->m_underEdition ? Style::None : Style::Press), slide, currentLayer);
+    m_uiGraphic.push(Style::Slider & (this->m_underEdition ? Style::None : Style::Press), slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::slider(i64 &value, i64 min, i64 max){
@@ -619,8 +619,8 @@ IMGUI& IMGUI::slider(i64 &value, i64 min, i64 max){
     }
     // else currentSlider = nullptr;
 
-    m_uiGraphic.push(Style::Slide, slide, currentLayer);
-    m_uiGraphic.push(Style::Slider, slider_, currentLayer);
+    m_uiGraphic.push(Style::Slide & (this->m_underEdition ? Style::None : Style::Press), slide, currentLayer);
+    m_uiGraphic.push(Style::Slider & (this->m_underEdition ? Style::None : Style::Press), slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::slider(u32 &value, u32 min, u32 max){
@@ -649,8 +649,8 @@ IMGUI& IMGUI::slider(u32 &value, u32 min, u32 max){
     }
     // else currentSlider = nullptr;
 
-    m_uiGraphic.push(Style::Slide, slide, currentLayer);
-    m_uiGraphic.push(Style::Slider, slider_, currentLayer);
+    m_uiGraphic.push(Style::Slide & (this->m_underEdition ? Style::None : Style::Press), slide, currentLayer);
+    m_uiGraphic.push(Style::Slider & (this->m_underEdition ? Style::None : Style::Press), slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::slider(i32 &value, i32 min, i32 max){
@@ -679,8 +679,8 @@ IMGUI& IMGUI::slider(i32 &value, i32 min, i32 max){
     }
     // else currentSlider = nullptr;
 
-    m_uiGraphic.push(Style::Slide, slide, currentLayer);
-    m_uiGraphic.push(Style::Slider, slider_, currentLayer);
+    m_uiGraphic.push(Style::Slide & (this->m_underEdition ? Style::None : Style::Press), slide, currentLayer);
+    m_uiGraphic.push(Style::Slider & (this->m_underEdition ? Style::None : Style::Press), slider_, currentLayer);
     return *this;
 }
 IMGUI& IMGUI::operator () (int flags){
@@ -697,11 +697,12 @@ IMGUI& IMGUI::operator () (int flags){
          currentBox().insertRect(item.box);
 
     // m_uiGraphic.push(flags, m_style, this->m_color, item.box, currentLayer);
-    if(item.hover and (item.lClicked or item.rClicked or updater.mb.lmbRepeat or updater.mb.rmbRepeat)) item.style &= Style::Press;
-    else if(item.hover) item.style &= Style::Hover;
-    else item.style &= Style::None;
-    m_uiGraphic.push(item.style, m_style, this->m_color, item.box, currentLayer);
-
+    if(item.style){
+        if(item.hover and (item.lClicked or item.rClicked or updater.mb.lmbRepeat or updater.mb.rmbRepeat)) item.style &= Style::Press;
+        else if(item.hover) item.style &= Style::Hover;
+        else item.style &= Style::None;
+        m_uiGraphic.push(item.style, m_style, this->m_color, item.box, currentLayer);
+    }
     if(this->m_imageEnbl){
         // this->m_image.color = this->m_color;
         // this->m_image.color = this->m_forceColor ? m_color : m_style.imageColor;
@@ -722,6 +723,7 @@ IMGUI& IMGUI::operator () (int flags){
     return *this;
 }
 void IMGUI::restoreDefaults(){
+    item = {};
     m_buttonFlags = 0;
     m_imageEnbl = false;
     m_text = "";

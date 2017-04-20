@@ -14,9 +14,9 @@ Style::Style(){
     colors[Editbox & Active] = 0x07'07'07'ff;
     colors[Box & None] = 0x07'07'07'ff;
     colors[Background] = 0x07'07'07'ff;
-    colors[Slider & None] = 0x07'07'07'ff;
-    colors[Slider & Hover] = 0x07'07'07'ff;
-    colors[Slider & Press] = 0x07'07'07'ff;
+    colors[Slider & None] = 0x81'87'87'ff;
+    colors[Slider & Hover] = 0xa7'a7'a7'ff;
+    colors[Slider & Press] = 0xf7'f7'f7'ff;
     colors[Slide & None] = 0x07'07'07'ff;
     colors[Slide & Hover] = 0x07'07'07'ff;
     colors[Slide & Press] = 0x07'07'07'ff;
