@@ -7,6 +7,7 @@
 #include "UIUpdater.hpp"
 #include "Renderer.hpp"
 #include "UIDrawer.hpp"
+#include "RendererUtils.hpp"
 #include "UITester.hpp"
 #include "IMGUI.hpp"
 #include "YAML.hpp"
@@ -66,6 +67,7 @@ public:
     }
     void render(){
         renderer->beginFrame();
+        renderer->utils->drawBackground("pmk.jpg");
         renderer->uiDrawer->renderUis(uiUpdater->getUis());
         renderer->endFrame();
         glfwSwapBuffers(window.window);

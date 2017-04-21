@@ -4,6 +4,7 @@
 class Context;
 class Window;
 class UIDrawer;
+class RendererUtils;
 
 class Renderer
 {
@@ -25,4 +26,5 @@ public:
     // HdrPostprocessing; composedScene -> composedScene
     // Tonemapping; composedScene -> composedSceneLdr, blurredScene
     std::shared_ptr<UIDrawer> uiDrawer;
+    std::shared_ptr<RendererUtils> utils;
 };
