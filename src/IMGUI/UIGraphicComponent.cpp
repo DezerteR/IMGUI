@@ -31,5 +31,5 @@ int UIGraphicComponent::size(const int item){
 }
 
 void UIGraphicComponent::change(const int item, const int idx, const glm::vec4 &box, const u32 layer){
-        boxes[layer][idx] = BoxGraphic {box, style.colors[item]};
+    boxes[layer][idx] = BoxGraphic {box, style.colors[item]};
 }

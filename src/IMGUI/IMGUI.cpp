@@ -869,7 +869,7 @@ IMGUIBox& IMGUIBox::box(int flags, Box spawnPosition, IMGUI *_imgui){
 
     if(m_flags & Draw){
         m_rectIdx = imgui->m_uiGraphic.size(UI::BigBox);
-        imgui->m_uiGraphic.push(Style::Box, spawnPosition, _imgui->currentLayer);
+        imgui->m_uiGraphic.push(Style::Box & Style::None, spawnPosition, _imgui->currentLayer);
     }
 
     return *this;
@@ -975,7 +975,7 @@ IMGUIBox& IMGUI::endBox(){
     rect = fixRect(rect);
 
     if(group.m_flags & Draw){
-        m_uiGraphic.change(Style::Box, group.m_rectIdx, rect, currentLayer);
+        m_uiGraphic.change(Style::Box & Style::None, group.m_rectIdx, rect, currentLayer);
     }
 
     m_boxStack[m_boxIndex].m_box = rect;
