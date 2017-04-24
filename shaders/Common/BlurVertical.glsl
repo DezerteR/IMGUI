@@ -24,7 +24,7 @@ vec3 GaussianBlur(in sampler2D tex0, in vec2 centreUV, in vec2 pixelOffset){
 
     /// Kernel width 35 x 35
     const int stepCount = 9;
-    const float gWeights[stepCount] ={
+    const float gWeights[stepCount] = float[](
        0.10855,
        0.13135,
        0.10406,
@@ -34,8 +34,8 @@ vec3 GaussianBlur(in sampler2D tex0, in vec2 centreUV, in vec2 pixelOffset){
        0.01083,
        0.00441,
        0.00157
-    };
-    const float gOffsets[stepCount] ={
+    );
+    const float gOffsets[stepCount] = float[](
        0.66293,
        2.47904,
        4.46232,
@@ -45,7 +45,7 @@ vec3 GaussianBlur(in sampler2D tex0, in vec2 centreUV, in vec2 pixelOffset){
        12.39664,
        14.38070,
        16.36501
-    };
+    );
 
     for( int i = 0; i < stepCount; i++ )
     {

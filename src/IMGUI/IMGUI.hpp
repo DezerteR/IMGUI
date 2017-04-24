@@ -154,6 +154,25 @@ struct CurrentItem
     bool lClicked;
     bool rClicked;
     int style;
+    int buttonFlags;
+    bool imageEnabled;
+    Icon icon;
+    bool noDraw;
+    bool active; /// dość niefortunna
+    Box lastBox; /// przenieść to do IMGUI/kontenera
+
+    int flag; /// coś z tekstem
+    std::string text;
+    int caret;
+    std::string font;
+    float textOffset;
+    int fontSize;
+
+    bool activeEdition;
+    bool editBox; /// nie widzę różnicy pomiedzy
+    bool special;
+
+    void *currentSlider;
 };
 
 class IMGUI
@@ -163,6 +182,7 @@ class IMGUI
     Updater &updater;
 public:
     UIGraphicComponent m_uiGraphic;
+    TextEditor textEditor;
 
     IMGUI(glm::vec4 bounds, Updater &updater) : m_uiGraphic(m_style), bounds(bounds), updater(updater){}
 
@@ -221,18 +241,14 @@ public:
     IMGUI& rect(int x, int y, int w, int h, HexColor color);
 
     IMGUI& setBox(const Box &box);
-    // for proportional editing
     IMGUI& size(float x = 0, float y = 0);
     IMGUI& offset(float x = 0, float y = 0);
 
-    // IMGUI& switcher(int &state, int val);
-    // IMGUI& switcher(bool &state, bool val);
-    // IMGUI& switcher(std::string &state, const std::string &val);
     template<typename T>
     IMGUI& switcher(T &state, const T &val){
-        if(this->m_lClicked)
+        if(item.lClicked)
             state = val;
-        this->m_active = (state == val);
+        item.active = (state == val);
         return *this;
     }
     IMGUI& activeElement(const std::string &image);
@@ -260,28 +276,12 @@ public:
     IMGUI& text(const std::u16string &text, int flag = 0x2000, int caretPosition = -1);
     IMGUI& text(const std::u16string &text, const std::string &font, int flag = 0x2000, int caretPosition = -1);
 
-    IMGUI& format(const std::string &font, int flag = 0x2000, int caretPosition = -1){
-        this->m_flag |= flag;
-        this->m_caretPosition = caretPosition;
-        this->m_font = font;
-        return *this;
-    }
-    template<typename... Args>
-    IMGUI& kahgfukefda(const Args &... args){
-        this->m_text = toString(args...);
-        m_textOffset += fonts[m_font].render(m_text, item.box.xy() + glm::vec2(m_textOffset+3, floor(item.box.w/2.f - fonts[m_font].height/2)), m_fontColor ? m_fontColor : m_style.font.color, this->m_caretPosition);
-
-        if(this->m_flag & CenterText){
-            fonts[m_font].move( (item.box.z - m_textOffset)/2-3, 0);
-        }
-        else if(this->m_flag & TextToRight){
-            fonts[m_font].move( (item.box.z - m_textOffset)-3, 0);
-        }
-        if(LastTextHeight > 0)
-            fonts[m_font].move( 0, LastTextHeight/2);
-
-        return *this;
-    }
+    // IMGUI& format(const std::string &font, int flag = 0x2000, int caretPosition = -1){
+    //     this->m_flag |= flag;
+    //     this->m_caretPosition = caretPosition;
+    //     this->m_font = font;
+    //     return *this;
+    // }
 
     IMGUI& color(HexColor hexColor);
     IMGUI& boxColor(HexColor hexColor);
@@ -307,9 +307,6 @@ public:
     IMGUI& operator () (int flags = 0);
 
     void restoreDefaults();
-    TextEditor textEditor;
-    // float m_maxHorizontal;
-    // float m_maxVertical;
     void begin();
     void end();
 
@@ -320,134 +317,43 @@ public:
     bool findCollision(Box &r, Box &out);
     bool overlay(Box &rect, Box &point);
 
-    void mouseKeyInput(int key, int action){
-        if (action == GLFW_PRESS){
-            m_mouseKey = key;
-            m_mouseAction = action;
-        }
-    }
-    void keyInput(int key, int action, int mod){
-        if (action == GLFW_PRESS){
-            m_key = key;
-            m_action = action;
-            m_mod = mod;
-        }
-        if (textEditor.state())
-            textEditor.input(key, action, mod);
-    }
-    bool keyAction(int key, bool *state){
-        if (key == m_key && currentLayer >= drawLayer){
-            *state = !*state;
-            m_key = -1;
-            return true;
-        }
-        return false;
-    }
-    bool keyAction(int key, std::function<void(void)>fun){
-        // if(key == m_key && currentLayer >= drawLayer){
-        if (key == m_key && currentLayer >= drawLayer){
-            fun();
-            m_key = -1;
-            return true;
-        }
-        return false;
-    }
-    bool mouseKeyAction(int key, bool *state){
-        if (key == m_mouseKey && currentLayer >= drawLayer){
-            *state = !*state;
-            m_mouseKey = -1;
-            return true;
-        }
-        return false;
-    }
+    void mouseKeyInput(int key, int action);
+    void keyInput(int key, int action, int mod);
+    bool keyAction(int key, bool *state);
+    bool keyAction(int key, std::function<void(void)>fun);
+    bool mouseKeyAction(int key, bool *state);
 
-    bool onRightClick(bool *state){
-        return mouseKeyAction(GLFW_MOUSE_BUTTON_RIGHT, state);
-    }
-    bool onEnter(bool *state){
-        return keyAction(GLFW_KEY_ENTER, state);
-    }
-    bool onESC(bool *state){
-        return keyAction(GLFW_KEY_ESCAPE, state);
-    }
-    bool onESC(std::function<void(void)>fun){
-        return keyAction(GLFW_KEY_ESCAPE, fun);
-    }
-    bool onEnter(std::function<void(void)>fun){
-        return keyAction(GLFW_KEY_ENTER, fun);
-    }
-
-    bool tableHover(){
-        return hasHover(fixRect(m_boxStack[m_boxIndex].m_box));
-    }
+    bool onRightClick(bool *state);
+    bool onEnter(bool *state);
+    bool onESC(bool *state);
+    bool onESC(std::function<void(void)>fun);
+    bool onEnter(std::function<void(void)>fun);
+    bool tableHover();
     bool outOfTable();
 
-    void onGroupHover(std::function<void(Box rect)>fun){
-        if (hasHover(fixRect(m_boxStack[m_boxIndex].m_box)))
-            fun(fixRect(m_boxStack[m_boxIndex].m_box));
+    void onGroupHover(std::function<void(Box rect)>fun);
+    void onGrouplClick(std::function<void(Box rect)>fun);
+    bool onGroupGrab(std::function<void(Box rect)>fun);
+    void setFont(const std::string &s);
+    void setfont(const std::string &s, int size);
 
-    }
-    void onGrouplClick(std::function<void(Box rect)>fun){
-        if (hasHover(fixRect(m_boxStack[m_boxIndex].m_box))
-            && updater.mb.lmbPress)
-            fun(fixRect(m_boxStack[m_boxIndex].m_box));
-    }
-    bool onGroupGrab(std::function<void(Box rect)>fun){
-        if (hasHover(fixRect(m_boxStack[m_boxIndex].m_box)) && m_lClicked){
-            fun(fixRect(m_boxStack[m_boxIndex].m_box));
-            return true;
-        }
-        return false;
-    }
-    void setFont(const std::string &s){
-        m_font = s;
-    }
-    void setfont(const std::string &s, int size){
-        m_font = s;
-        m_fontSize = size;
-    }
+    void forceClick();
 
-    void forceClick(){
-        m_force = true;
-    }
+    void switchDrawing();
 
-    void switchDrawing(){
-        draw = !draw;
-    }
+    Box getBox();
 
-    Box getBox(){
-        return m_rects.back();
-    }
+    void drawOnlyTopLayer();
+    void beginLayer();
+    void endLayer();
 
-    void drawOnlyTopLayer(){
-        layerToDraw = std::max(currentLayer, layerToDraw);
-    }
-    void beginLayer(){
-        currentLayer++;
-        tmpMaxLayer = std::max(tmpMaxLayer, currentLayer);
-    }
-    void endLayer(){
-        currentLayer--;
-    }
-
-    void border(int borderSize){
-        // m_groupStack[m_groupIndex].m_border = borderSize;
-        m_boxStack[m_boxIndex].m_border = borderSize;
-    }
-    void indentation(int indentationLen){
-        // m_groupStack[m_groupIndex].m_border = borderSize;
-        m_indentation = indentationLen;
-    }
+    void border(int borderSize);
+    void indentation(int indentationLen);
 
     bool captureMouse;
-    void updateCounter(float deltaTime){
-        accu += deltaTime;
-        accu2 += deltaTime;
-    }
+    void updateCounter(float deltaTime);
 
-    void updateCounter(uint32_t deltaTime){
-        timeFromstart += deltaTime;
-    }
+    void updateCounter(uint32_t deltaTime);
 
     std::vector <Box> m_rects;
     std::vector <std::pair<Box, std::string>> m_shapePoint;
@@ -456,49 +362,16 @@ public:
     float accu2;
     float frequency;
     ImageSet *m_imageSet;
-    void setDefaultFont(std::string font, int size){
-        m_font = font;
-        m_defaultFont = font;
-        m_defaultFontSize = size;
-    }
-
-    bool hover(){
-        return m_hover;
-    }
-
+    void setDefaultFont(std::string font, int size);
+    bool hover();
     HexColor m_defaultColor{ 0xb0b0ffff };
     HexColor m_defaultFontColor{ 0xffffffff };
     Box m_defaultRect{ 0, 0, 150, 22 };
     std::string m_defaultFont{ "ui_12" };
     int m_defaultFontSize{ 12 };
     Style m_style;
-    bool m_hover;
-    /// box processing
-    bool m_lClicked;
-    bool m_rClicked;
-    bool m_mClicked;
-    bool m_imageEnbl;
-    bool m_underEdition;
-    bool m_active;
-    bool m_special;
-    bool m_editBox;
-    bool m_forceNoDraw;
-    bool m_forceColor;
-    int m_flag;
     int m_buttonFlags;
-    Icon m_image;
-    std::string m_text;
-    int m_caretPosition;
-    HexColor m_color;
-    HexColor m_fontColor;
-    float m_textOffset { 0 };
-
-    float m_indentation { 0 };
-    float mc_indentation { 0 };
-
-    int m_fontSize { 12 };
     std::string m_font { "ui_12" };
-    bool draw;
     IMGUIBox m_group;
     IMGUIBox m_boxStack[20];
     int m_groupIndex;
