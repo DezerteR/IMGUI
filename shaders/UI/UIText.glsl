@@ -13,7 +13,7 @@ out vec2 vUV;
 out vec4 vColor;
 
 void main(){
-    vColor = mColor;
+    vColor = mColor.abgr;
     gl_Position = vec4( (mVertex.xy*mSize+mPosition) /vec2(uWidth/2, uHeight/2) - vec2(1), 0, 1);
     vUV = mUV.xy + mVertex.xy*mUV.zw;
 }
@@ -30,8 +30,7 @@ in vec4 vColor;
 out vec4 outColor;
 
 void main(void){
-    float r = texture(uTexture, vUV).r;
-    outColor = vec4(vColor.abg, r*vColor.r);
+    outColor = vColor*texture(uTexture, vUV).r;
 }
 
 #endif

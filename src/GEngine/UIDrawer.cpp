@@ -4,13 +4,21 @@
 #include "UIGraphicComponent.hpp"
 #include "Assets.hpp"
 
+/// TODO: it would be good to use stencil here, for drawing UIs
 void UIDrawer::renderUis(std::vector<std::shared_ptr<UI::IMGUI>> &uis){
+    renderUIsToTexture(uis);
+    composeUIsToScreen();
+}
+void UIDrawer::renderUIsToTexture(std::vector<std::shared_ptr<UI::IMGUI>> &uis){
+    context.setupFBO_11(context.tex.util.full.a);
+
+    gl::ClearColor(0.f, 0.f, 0.f, 0.f);
+    gl::Clear(gl::COLOR_BUFFER_BIT);
+
     gl::DepthMask(gl::FALSE_);
     gl::Disable(gl::DEPTH_TEST);
-    gl::Disable(gl::CULL_FACE);
 
-    gl::Enable(gl::BLEND);
-    gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+    gl::Disable(gl::BLEND);
 
     for(auto &ui : uis){
         // for(auto i=0; i<ui.layers; i++)
@@ -18,6 +26,10 @@ void UIDrawer::renderUis(std::vector<std::shared_ptr<UI::IMGUI>> &uis){
         renderBoxes(*ui, i);
         renderImages(*ui, i);
     }
+
+    gl::Enable(gl::BLEND);
+    gl::BlendFunc(gl::ONE, gl::ONE_MINUS_SRC_ALPHA);
+
     renderFonts();
     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
 
@@ -25,9 +37,7 @@ void UIDrawer::renderUis(std::vector<std::shared_ptr<UI::IMGUI>> &uis){
     gl::DisableVertexAttribArray(2);
     gl::DisableVertexAttribArray(3);
     gl::DisableVertexAttribArray(4);
-    gl::DepthMask(1);
     gl::Disable(gl::BLEND);
-    gl::Enable(gl::CULL_FACE);
     context.errors();
 }
 
@@ -108,4 +118,21 @@ void UIDrawer::renderFonts(){
         it.second.clear(0);
     }
     context.errors();
+}
+
+void UIDrawer::composeUIsToScreen(){
+    context.setupFBO_11(context.tex.gbuffer.color);
+
+    gl::DepthMask(gl::FALSE_);
+    gl::Disable(gl::DEPTH_TEST);
+
+    gl::Disable(gl::BLEND);
+    gl::BlendFunc(gl::ONE, gl::ONE_MINUS_SRC_ALPHA);
+
+    auto shader = assets::getShader("ComposeWithBlurredScene");
+    shader.bind();
+
+    shader.texture("uBlurred", context.tex.blurredScene, 0);
+    shader.texture("uUIs", context.tex.util.full.a, 1);
+    context.drawScreen();
 }

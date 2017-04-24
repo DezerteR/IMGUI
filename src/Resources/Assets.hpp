@@ -1,5 +1,6 @@
 #pragma once
 #include "Common.hpp"
+#include "BaseStructs.hpp"
 
 struct Shader;
 struct Image;

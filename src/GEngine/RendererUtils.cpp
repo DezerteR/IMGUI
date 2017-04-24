@@ -3,11 +3,6 @@
 #include "Assets.hpp"
 
 void RendererUtils::drawBackground(const std::string &image){
-    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-    gl::DisableVertexAttribArray(0);
-    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
-    gl::BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
-
     gl::Disable(gl::DEPTH_TEST);
     gl::Disable(gl::BLEND);
     gl::Disable(gl::CULL_FACE);
@@ -16,9 +11,42 @@ void RendererUtils::drawBackground(const std::string &image){
     auto shader = assets::getShader("ApplyFBO");
     shader.bind();
     shader.texture("uTexture", assets::getImage(image).ID, 0);
-    drawScreen();
+    context.drawScreen();
+}
 
-    gl::UseProgram(0);
-    gl::BindVertexArray(0);
-    gl::DisableVertexAttribArray(0);
+void RendererUtils::blurBuffer(){
+    gl::Disable(gl::DEPTH_TEST);
+    gl::Disable(gl::BLEND);
+    gl::Disable(gl::CULL_FACE);
+    gl::DepthMask(gl::FALSE_);
+
+    context.tex.gbuffer.color.genMipmaps();
+
+    /// first pass
+    context.setupFBO_12(context.tex.util.half.a);
+
+    auto shader = assets::getShader("BlurHorizontal");
+    shader.bind();
+    shader.uniform("uPixelSize", window.pixelSize/2.f);
+    shader.texture("uTexture", context.tex.gbuffer.color, 0);
+    context.drawScreen();
+
+    /// second pass
+    context.setupFBO_12(context.tex.util.half.b);
+
+    shader = assets::getShader("BlurVertical");
+    shader.bind();
+    shader.uniform("uPixelSize", window.pixelSize/2.f);
+    shader.texture("uTexture", context.tex.util.half.a, 0);
+    context.drawScreen();
+
+    context.tex.blurredScene = context.tex.util.half.b;
+    context.setupFBO_11(context.tex.gbuffer.color);
+}
+
+void RendererUtils::renderBlurred(){
+    auto shader = assets::getShader("ApplyFBO");
+    shader.bind();
+    shader.texture("uTexture", context.tex.blurredScene, 0);
+    context.drawScreen();
 }

@@ -11,4 +11,6 @@ class RendererUtils
 public:
     RendererUtils(Window &window, Context &context) : window(window), context(context){}
     void drawBackground(const std::string &image);
+    void blurBuffer();
+    void renderBlurred();
 };

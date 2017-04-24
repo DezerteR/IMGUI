@@ -9,11 +9,12 @@ class UIDrawer
 {
     Window &window;
     Context &context;
-public:
-    UIDrawer(Window &window, Context &context) : window(window), context(context){}
-    void renderUis(std::vector<std::shared_ptr<UI::IMGUI>> &uis);
-
+    void renderUIsToTexture(std::vector<std::shared_ptr<UI::IMGUI>> &uis);
     void renderBoxes(UI::IMGUI &ui, u32 layer);
     void renderImages(UI::IMGUI &ui, u32 layer);
     void renderFonts();
+    void composeUIsToScreen();
+public:
+    UIDrawer(Window &window, Context &context) : window(window), context(context){}
+    void renderUis(std::vector<std::shared_ptr<UI::IMGUI>> &uis);
 };
