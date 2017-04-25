@@ -172,5 +172,31 @@ void IMGUI::setDefaultFont(std::string font, int size){
 bool IMGUI::hover(){
     return item.hover;
 }
+bool IMGUI::overlay(Box &rect, Box &point){
+    return     point.x >= rect.x && point.x <= rect.x+rect.z &&
+                    point.y >= rect.y && point.y <= rect.y+rect.w;
+}
+bool IMGUI::hasHover(Box rect){
+    if(currentLayer == maxLayer)
+        return     (updater.mb.mousePosition.x >= rect.x && updater.mb.mousePosition.x < rect.x+rect.z &&
+                    updater.mb.mousePosition.y >= rect.y && updater.mb.mousePosition.y < rect.y+rect.w) && !captureMouse;
+    return false;
+}
+bool IMGUI::outOfTable(){
+    auto &&rect = fixRect(m_boxStack[m_boxIndex+1].m_box);
+    // if(currentLayer == maxLayer)
+        return this->updater.mb.lmbPress && !(updater.mb.mousePosition.x >= rect.x && updater.mb.mousePosition.x < rect.x+rect.z &&
+                    updater.mb.mousePosition.y >= rect.y && updater.mb.mousePosition.y < rect.y+rect.w);
+
+
+}
+Box IMGUI::fixRect(Box rect){
+    if(rect.z < 0.f)
+        rect = Box(rect.x+rect.z, rect.y, -rect.z, rect.w);
+    if(rect.w < 0.f)
+        rect = Box(rect.x, rect.y+rect.w, rect.z, -rect.w);
+
+    return rect;
+}
 
 }

@@ -126,7 +126,9 @@ public:
     float parseExpr(std::string &str);
 
     template<typename T>
-    bool compare(T &value);
+    bool compare(T &value){
+        return &value == this->valuePointer;
+    }
 
     std::string value();
     bool state();

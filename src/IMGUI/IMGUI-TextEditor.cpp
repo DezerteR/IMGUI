@@ -11,34 +11,6 @@ void IMGUI::printTextEditorValue(){
             item.caret = item.text.size() + textEditor.caretPosition();
         text(this->textEditor.value(),0,item.caret);
 }
-template<typename T>
-void IMGUI::processTE(T &value, int base){
-    if(!item.activeEdition && item.lClicked || this->force()){
-        this->textEditor.setValueToEdit(value, base);
-    }
-    else if(item.activeEdition && updater.mb.lmbPress && !item.hover){
-        this->textEditor.breakEdition();
-    }
-
-    onEnter([this]{
-        this->textEditor.finishEdition();
-        item.special = true;
-    });
-}
-template<typename T>
-void IMGUI::processTE(T &value){
-    if(!(item.activeEdition && item.lClicked)|| this->force()){
-        this->textEditor.setValueToEdit(value);
-    }
-    else if(item.activeEdition && updater.mb.lmbPress && !item.hover){
-        this->textEditor.breakEdition();
-    }
-
-    onEnter([this]{
-        this->textEditor.finishEdition();
-        item.special = true;
-    });
-}
 
 
 TextEditor::TextEditor(){
@@ -238,10 +210,6 @@ void TextEditor::input(u32 key, u32 action, u32 mod){
         }
     }
 
-}
-template<typename T>
-bool TextEditor::compare(T &value){
-    return &value == this->valuePointer;
 }
 
 float TextEditor::parseExpr(std::string &str){

@@ -700,24 +700,59 @@ IMGUI& IMGUI::operator () (int flags){
     return *this;
 }
 void IMGUI::restoreDefaults(){
-    // item = {};
-    // m_buttonFlags = 0;
-    // m_imageEnbl = false;
-    // item.text = "";
-    // item.caretPosition = -1;
-    // item.color = 0;
-    // item.font = m_style.font.name;
-    // item.textColor = 0;
-    // m_lastBox = item.box;
-    // item.box = Box(0, 0, 120, 24);
-    // m_flag = 0;
-    // m_special = false;
-    // m_editBox = false;
-    // m_forceColor = false;
-    // m_forceNoDraw = false;
-    // item.textOffset = 0;
-    // m_underEdition = false;
+    item.textColor = 0;
+    item.borderColor = 0;
+    item.color = 0;
+    item.buttonState = 0;
+    item.lastBox = item.box;
+    item.box = {};
+    item.hover = 0;
+    item.lClicked = 0;
+    item.rClicked = 0;
+    item.style = 0;
+    item.buttonFlags = 0;
+    item.imageEnabled = 0;
+    // item.icon = 0;
+    item.noDraw = 0;
+    item.active = 0;
+    item.flag = 0;
+    item.text = "";
+    item.caret = -1;
+    // item.font = ;
+    item.textOffset = 0;
+    item.fontSize = 0;
+    item.activeEdition = false;
+    item.editBox = false;
+    item.special = false;
 }
 
+template<typename T>
+void IMGUI::processTE(T &value, int base){
+    if(!item.activeEdition && item.lClicked || this->force()){
+        this->textEditor.setValueToEdit(value, base);
+    }
+    else if(item.activeEdition && updater.mb.lmbPress && !item.hover){
+        this->textEditor.breakEdition();
+    }
+
+    onEnter([this]{
+        this->textEditor.finishEdition();
+        item.special = true;
+    });
+}
+template<typename T>
+void IMGUI::processTE(T &value){
+    if(!(item.activeEdition && item.lClicked)|| this->force()){
+        this->textEditor.setValueToEdit(value);
+    }
+    else if(item.activeEdition && updater.mb.lmbPress && !item.hover){
+        this->textEditor.breakEdition();
+    }
+
+    onEnter([this]{
+        this->textEditor.finishEdition();
+        item.special = true;
+    });
+}
 
 }
