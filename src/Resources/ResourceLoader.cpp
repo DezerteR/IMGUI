@@ -219,34 +219,21 @@ bool ResourceLoader::loadObj(std::fstream &file){
 }
 
 bool ResourceLoader::loadFonts(const Yaml &cfg){
-    for(auto &font : cfg["Fonts"]){
-        loadFont(font);
+    std::vector<std::string> imagesToLoad;
+    auto fontsToLoad = listDirectory("../res/fonts/");
+    for(auto &font : fontsToLoad){
+        loadFont(font, imagesToLoad);
     }
+
+    assets::TextureArray out;
+    out.id = ImageUtils::loadArrayToGpu(imagesToLoad).id;
+    assets::addAlbedoArray(id, out, "Fonts");
+
     return true;
 }
-bool ResourceLoader::loadFont(const Yaml &cfg){
-    try {
-        bool success;
-        std::string name = cfg["Name"].string();
-        std::string fontName = cfg["Font"].string();
-        std::string symbolsName = cfg["Symbols"].string();
-        // log("[ FONT ]", name);
-
-        UI::Font &renderer = assets::getFont(name);
-        success &= loadImage(fontName+".png").ID;
-        success &= loadImage(symbolsName+".png").ID;
-
-        renderer.fontInfo = std::make_shared<UI::FontInfo>();
-        renderer.fontInfo->texWithLetters = assets::getImage(fontName).ID;
-        renderer.fontInfo->texWithSymbols = assets::getImage(symbolsName).ID;
-
-        renderer.loadLetters(fontName);
-        renderer.loadSymbols(symbolsName);
-    }
-    catch(...){
-        // log("[ Error ] error loading font: ");
-        return false;
-    }
+bool ResourceLoader::loadFont(const std::string &font, std::vector<std::string> &imagesToLoad){
+    UI::Font &font = assets::getFont(name);
+    font.load(font, imagesToLoad);
     return true;
 }
 

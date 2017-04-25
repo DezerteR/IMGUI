@@ -25,12 +25,12 @@ void UIDrawer::renderUIsToTexture(std::vector<std::shared_ptr<UI::IMGUI>> &uis){
         u32 i = 0;
         renderBoxes(*ui, i);
         renderImages(*ui, i);
+        renderFonts(*ui);
     }
 
     gl::Enable(gl::BLEND);
     gl::BlendFunc(gl::ONE, gl::ONE_MINUS_SRC_ALPHA);
 
-    renderFonts();
     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
 
     gl::DisableVertexAttribArray(1);
@@ -81,42 +81,27 @@ void UIDrawer::renderImages(UI::IMGUI &ui, u32 layer){
     // context.errors();
 }
 
-void UIDrawer::renderFonts(){
+void UIDrawer::renderFonts(UI::IMGUI &ui){
     auto shader = assets::getShader("UIText");
     shader.bind();
     shader.uniform("uWidth", window.size.x);
     shader.uniform("uHeight", window.size.y);
 
     context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
-    for (auto &it : assets::getFonts()){
-        if(it.second.renderedFonts[0].m_size){
-            shader.texture("uTexture", it.second.fontInfo->texWithLetters);
+    // if(ui.fontRenderer.renderedSymbols.m_size){
+    //     shader.textureArray("uTexture", assets::getAlbedoArray("fonts"));
 
-            auto &renderData = it.second.renderedFonts[0];
-            context.getRandomBuffer().update(renderData.positions).attrib(1).pointer_float(2).divisor(1);
-            context.getRandomBuffer().update(renderData.sizes).attrib(2).pointer_float(2).divisor(1);
-            context.getRandomBuffer().update(renderData.uvs).attrib(3).pointer_float(4).divisor(1);
-            context.getRandomBuffer().update(renderData.colors).attrib(4).pointer_color().divisor(1);
+    //     auto &renderData = ui.fontRenderer.renderedSymbols;
 
-            clog("Fonts to render:", renderData.m_size);
+    //     context.getRandomBuffer().update(renderData.positions).attrib(1).pointer_float(2).divisor(1);
+    //     context.getRandomBuffer().update(renderData.sizes).attrib(2).pointer_float(2).divisor(1);
+    //     context.getRandomBuffer().update(renderData.uvs).attrib(3).pointer_float(4).divisor(1);
+    //     context.getRandomBuffer().update(renderData.colors).attrib(4).pointer_color().divisor(1);
 
-            gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, renderData.m_size);
-        }
-        if(it.second.renderedSymbols[0].m_size){
-            shader.texture("uTexture", it.second.fontInfo->texWithSymbols);
+    //     gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, renderData.m_size);
+    // }
 
-            auto &renderData = it.second.renderedSymbols[0];
-
-            context.getRandomBuffer().update(renderData.positions).attrib(1).pointer_float(2).divisor(1);
-            context.getRandomBuffer().update(renderData.sizes).attrib(2).pointer_float(2).divisor(1);
-            context.getRandomBuffer().update(renderData.uvs).attrib(3).pointer_float(4).divisor(1);
-            context.getRandomBuffer().update(renderData.colors).attrib(4).pointer_color().divisor(1);
-
-            gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, renderData.m_size);
-        }
-
-        it.second.clear(0);
-    }
+    // renderData.clear(0);
     context.errors();
 }
 

@@ -34,15 +34,15 @@ TextureArray& getMetalic(const std::string &name);
 TextureArray& getRoughnessArray(const std::string &name);
 TextureArray& getCubeMap(const std::string &name);
 Shader& getShader(const std::string &name);
-UI::Font& getFont(const std::string &name);
-std::unordered_map<std::string, UI::Font>& getFonts();
+UI::Font& getFont(int id);
+std::unordered_map<std::string, UI::FontRenderer>& getFonts();
 
 std::string findArrayWithTextureName(const std::string &name);
 std::function<float(const std::string&)> layerSearch(TextureArray&);
 
 void relaseResources(u32 id);
 
-void addFont(UI::Font &font, const std::string &name);
+void addFont(UI::FontRenderer &font, const std::string &name);
 void addImageSet(ImageSet &imageSet, const std::string &name);
 ImageSet& getImageSet(const std::string &name);
 void addShader(Shader &shader, const std::string &name);

@@ -14,7 +14,7 @@ out vec4 vColor;
 
 void main(){
     vColor = mColor.abgr;
-    gl_Position = vec4( (mVertex.xy*mSize+mPosition) /vec2(uWidth/2, uHeight/2) - vec2(1), 0, 1);
+    gl_Position = vec4( (mVertex.xy*mSize+ceil(mPosition)) /vec2(uWidth/2, uHeight/2) - vec2(1), 0, 1);
     vUV = mUV.xy + mVertex.xy*mUV.zw;
 }
 
