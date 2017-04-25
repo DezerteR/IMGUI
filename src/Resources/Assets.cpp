@@ -26,7 +26,7 @@ std::unordered_map<std::string, ImageSet> imageSets;
 std::unordered_map<std::string, UserID<Image>> images;
 
 std::unordered_map<std::string, Shader> shaders;
-std::unordered_map<std::string, UI::Font> fonts;
+std::unordered_map<int, UI::Font> fonts;
 
 std::unordered_map<std::string, UserID<TextureArray>> albedoArrays;
 std::unordered_map<std::string, UserID<TextureArray>> normalArrays;
@@ -62,10 +62,10 @@ TextureArray& getCubeMap(const std::string &name){
 Shader& getShader(const std::string &name){
     return shaders[name];
 }
-UI::Font& getFont(const std::string &name){
-    return fonts[name];
+UI::Font& getFont(int id){
+    return fonts[id];
 }
-std::unordered_map<std::string, UI::Font>& getFonts(){
+std::unordered_map<std::string, UI::FontRenderer>& getFonts(){
     return fonts;
 }
 
@@ -97,7 +97,7 @@ ResourceLoader getNewLoader(){
 
 void relaseResources(u32 id){}
 
-void addFont(UI::Font &font, const std::string &name){
+void addFont(UI::FontRenderer &font, const std::string &name){
     fonts[name] = font;
 }
 void addImageSet(ImageSet &imageSet, const std::string &name){

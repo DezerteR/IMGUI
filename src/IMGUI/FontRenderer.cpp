@@ -1,67 +1,58 @@
 #include "FontRenderer.hpp"
+#include "assets.hpp"
 #include <regex>
 #include <fstream>
 
 namespace UI {
 float LastTextLength;
 float LastTextHeight;
-int g_UILayer = 0;
 
-float Font::getLen(const std::string &text){
+int convertFontFilenameToId(const std::string&){
+    return 0;
+}
+
+float FontRenderer::getLen(const std::string &text){
     float len = 0.f;
     u8 letter;
     for (u32 i = 0; i < text.size(); i++){
         letter = text[i];
-        len += fontInfo->m_letters[letter].size.x;
+        // len += fontInfo->m_letters[letter].size.x; /// TODO:
     }
     return len;
 }
 
-void Font::clear(int layer){
-    empty[layer] = true;
+void FontRenderer::clear(int layer){
+    empty = true;
     LastTextHeight = 0;
-    renderedFonts[layer].m_size = 0;
-    renderedFonts[layer].positions.clear();
-    renderedFonts[layer].uvs.clear();
-    renderedFonts[layer].sizes.clear();
-    renderedFonts[layer].colors.clear();
-
-    renderedFonts[layer].positions.reserve(1000);
-    renderedFonts[layer].uvs.reserve(1000);
-    renderedFonts[layer].sizes.reserve(1000);
-    renderedFonts[layer].colors.reserve(1000);
-    renderedSymbols[layer].m_size = 0;
-    renderedSymbols[layer].positions.clear();
-    renderedSymbols[layer].uvs.clear();
-    renderedSymbols[layer].sizes.clear();
-    renderedSymbols[layer].colors.clear();
-
-    renderedSymbols[layer].positions.reserve(100);
-    renderedSymbols[layer].uvs.reserve(100);
-    renderedSymbols[layer].sizes.reserve(100);
-    renderedSymbols[layer].colors.reserve(100);
+    renderedSymbols.m_size = 0;
+    renderedSymbols.positions.clear();
+    renderedSymbols.uv.clear();
+    renderedSymbols.uvSize.clear();
+    renderedSymbols.sizes.clear();
+    renderedSymbols.colors.clear();
 }
-void Font::move(int x, int y){
-    u32 len = renderedFonts[g_UILayer].positions.size();
+void FontRenderer::move(int x, int y){
+    u32 len = renderedSymbols.positions.size();
     glm::vec2 offset(x, y);
     for (u32 i = len - lastTextSize; i < len; i++){
-        renderedFonts[g_UILayer].positions[i] += offset;
+        renderedSymbols.positions[i] += offset;
     }
 }
 
 /// Rendering
-float Font::render(const std::string &text, glm::vec2 position, HexColor color, int caretPosition){
-    empty[g_UILayer] = false;
+float FontRenderer::render(const std::string &text, int fontId, glm::vec2 position, HexColor color, int caretPosition){
+    auto &font = assets::getFont(fontId);
+    empty = false;
     LastTextHeight = 0;
     LastTextLength = 0;
     lastTextSize = text.size();
     glm::vec2 currentPosition = position;
-    u8 letter;
+    u8 character;
 
     for(u32 i = 0; i < text.size(); i++){
-        letter = text[i];
-        auto &letterInfo = fontInfo->m_letters[letter];
-        if(letter == '\n'){ // new line
+        character = text[i];
+        auto &symbol = font.symbols[character];
+        if(character == '\n'){ // new line
             LastTextLength = std::max(LastTextLength, currentPosition[0] - position.x);
             LastTextHeight += height;
             currentPosition = position - glm::vec2(0, LastTextHeight);
@@ -69,86 +60,76 @@ float Font::render(const std::string &text, glm::vec2 position, HexColor color, 
         }
 
         if (i > 0){ // kerning
-            currentPosition[0] += letterInfo.kerning[text[i - 1]];
+            currentPosition[0] += font.kerning[int(text[i - 1])<<16 & character];
         }
 
-        renderedFonts[g_UILayer].positions.push_back(currentPosition + letterInfo.offset);
-        renderedFonts[g_UILayer].sizes.push_back(letterInfo.size);
-        renderedFonts[g_UILayer].uvs.push_back(letterInfo.uv);
-        renderedFonts[g_UILayer].colors.push_back(color);
-        currentPosition.x += letterInfo.advance;
+        renderedSymbols.positions.push_back(currentPosition + symbol.pxOffset);
+        renderedSymbols.sizes.push_back(symbol.pxSize);
+        renderedSymbols.uv.push_back(symbol.uv);
+        renderedSymbols.uvSize.push_back(symbol.uvSize);
+        renderedSymbols.colors.push_back(color);
+        currentPosition.x += symbol.pxAdvance;
     }
 
     if (lastTextSize > 0) // compute len
         LastTextLength = currentPosition[0] - position.x;
 
     placeCaret(text, position, color, caretPosition);
-    renderedFonts[g_UILayer].m_size = renderedFonts[g_UILayer].uvs.size();
+    renderedSymbols.m_size = renderedSymbols.uv.size();
     return LastTextLength + 1.f;
 }
-float Font::render(const std::u16string &text, glm::vec2 position, HexColor color, int caretPosition){
-    empty[g_UILayer] = false;
+float FontRenderer::render(const std::u16string &text, int fontId, glm::vec2 position, HexColor color, int caretPosition){
+    auto &font = assets::getFont(fontId);
+    empty = false;
     LastTextHeight = 0;
     LastTextLength = 0;
     lastTextSize = text.size();
     glm::vec2 currentPosition = position;
-    char16_t letter;
+    char16_t character;
 
     for (u32 i = 0; i < text.size(); i++){
-        letter = text[i];
-        auto &letterInfo = fontInfo->m_letters[letter];
-        if (letter == '\n'){ // new line
+        character = text[i];
+        auto &symbol = font.symbols[character];
+        if (character == '\n'){ // new line
             LastTextLength = std::max(LastTextLength, currentPosition[0] - position.x);
             LastTextHeight += height;
             currentPosition = position - glm::vec2(0, LastTextHeight);
             continue;
         }
-        if (letter > L'\u00ff'){
-            currentPosition.x += genSingleSymbol(letter, currentPosition, color);
-            continue;
+        else if (i > 0 and character < 256){ // kerning
+            currentPosition[0] += font.kerning[int(text[i - 1])<<16 & character];
         }
-        else if (i > 0){ // kerning
-            currentPosition[0] += letterInfo.kerning[text[i - 1]];
-        }
-        renderedFonts[g_UILayer].m_size++;
+        renderedSymbols.m_size++;
 
-        renderedFonts[g_UILayer].positions.push_back(currentPosition + letterInfo.offset);
-        renderedFonts[g_UILayer].sizes.push_back(letterInfo.size);
-        renderedFonts[g_UILayer].uvs.push_back(letterInfo.uv);
-        renderedFonts[g_UILayer].colors.push_back(color);
-        currentPosition.x += letterInfo.advance;
+        renderedSymbols.positions.push_back(currentPosition + symbol.pxOffset);
+        renderedSymbols.sizes.push_back(symbol.pxSize);
+        renderedSymbols.uv.push_back(symbol.uv);
+        renderedSymbols.uvSize.push_back(symbol.uvSize);
+        renderedSymbols.colors.push_back(color);
+        currentPosition.x += symbol.pxAdvance;
     }
 
     if (lastTextSize > 0) // compute len
         LastTextLength = currentPosition[0] - position.x;
 
     // placeCaret(text, position, color, caretPosition);
-    renderedFonts[g_UILayer].m_size = renderedFonts[g_UILayer].uvs.size();
+    renderedSymbols.m_size = renderedSymbols.uv.size();
     return LastTextLength + 1.f;
 }
-float Font::genSingleSymbol(char16_t symbol, glm::vec2 position, HexColor color){
-    empty[g_UILayer] = false;
-    auto &symbolInfo = fontInfo->m_symbols[symbol];
-    renderedSymbols[g_UILayer].positions.push_back(position + symbolInfo.offset);
-    renderedSymbols[g_UILayer].sizes.push_back(symbolInfo.size);
-    renderedSymbols[g_UILayer].uvs.push_back(symbolInfo.uv);
-    renderedSymbols[g_UILayer].colors.push_back(color);
-    renderedSymbols[g_UILayer].m_size = renderedSymbols[g_UILayer].uvs.size();
-    return symbolInfo.advance;
-}
-void Font::placeCaret(const std::string &text, glm::vec2 position, HexColor color, int caretPosition){
-    auto &letters = fontInfo->m_letters;
+void FontRenderer::placeCaret(const std::string &text, int fontId, glm::vec2 position, HexColor color, int caretPosition){
+    auto &font = assets::getFont(fontId);
+    auto &letters = font.symbols;
     if(caretPosition >= 0){ // key
-        u8 letter = '|';
+        u8 character = '|';
         if((u32)caretPosition >= text.size() && text.size() > 0)
-            renderedFonts[g_UILayer].positions.push_back(renderedFonts[g_UILayer].positions.back() + renderedFonts[g_UILayer].sizes.back()*glm::vec2(1, 0));
+            renderedSymbols.positions.push_back(renderedSymbols.positions.back() + renderedSymbols.sizes.back()*glm::vec2(1, 0));
         else if(caretPosition == 0)
-            renderedFonts[g_UILayer].positions.push_back(position - glm::vec2(0, letters[letter].size.y - height));
+            renderedSymbols.positions.push_back(position - glm::vec2(0, letters[character].size.y - height));
         else
-            renderedFonts[g_UILayer].positions.push_back(renderedFonts[g_UILayer].positions[caretPosition]);
-        renderedFonts[g_UILayer].uvs.push_back(letters[letter].uv);
-        renderedFonts[g_UILayer].sizes.push_back(letters[letter].size);
-        renderedFonts[g_UILayer].colors.push_back(color);
+            renderedSymbols.positions.push_back(renderedSymbols.positions[caretPosition]);
+        renderedSymbols.uv.push_back(letters[character].uv);
+        renderedSymbols.sizes.push_back(letters[character].size);
+        renderedSymbols.colors.push_back(color);
     }
 }
 
@@ -180,6 +161,12 @@ int rgxIntSearch(const std::string &word, const std::string &rgx){
     std::regex_search(word, match, regex);
     return std::stoi(match[1]);
 }
+std::string regexStringSearch(const std::string &word, const std::string &rgx){
+    std::smatch match;
+    std::regex regex(rgx);
+    std::regex_search(word, match, regex);
+    return match[1];
+}
 std::vector<float> rgxVecFloatSearch(const std::string &_word){
     std::vector<float> out;
     std::smatch match;
@@ -203,70 +190,56 @@ std::vector<int> rgxVecIntSearch(const std::string &_word){
     return out;
 }
 
-void Font::insertFont(const std::string &word, float U, float V){
+void Font::loadCharacter(const std::string &line, float U, float V, int pageOffset){
     auto &&vec = rgxVecFloatSearch(word);
     int16_t id = vec[0];
     float x = vec[1]; // ~
     float y = vec[2]; // distance from top to top of letter
-    float z = vec[3]; // width
-    float w = vec[4]; // height
-    float offset_x = vec[5];
-    float offset_y = vec[6];
-    float advance = vec[7];
-    auto &letters = fontInfo->m_letters;
-    letters[id].uv = glm::vec4(x / U, 1.f - y / V - w / V, z / U, w / V);
-    letters[id].size = glm::vec2(z, w);
-    letters[id].offset = glm::vec2(offset_x, -offset_y);
-    letters[id].advance = advance;
-}
-void Font::insertSymbol(const std::string &word, float U, float V){
-    auto &&vec = rgxVecFloatSearch(word);
-    int16_t id = vec[0];
-    float x = vec[1]; // ~
-    float y = vec[2]; // distance from top to top of letter
-    float z = vec[3]; // width
-    float w = vec[4]; // height
-    float offset_x = vec[5];
-    float offset_y = vec[6];
-    float advance = vec[7];
-    auto &symbols = fontInfo->m_symbols;
-    symbols[id];
-    symbols[id].uv = glm::vec4(x / U, 1.f - y / V - w / V, z / U, w / V);
-    symbols[id].size = glm::vec2(z, w);
-    symbols[id].offset = glm::vec2(offset_x, -offset_y);
-    symbols[id].advance = advance;
-
+    float width = vec[3]; // width
+    float height = vec[4]; // height
+    float xoffset = vec[5];
+    float yoffset = vec[6];
+    float xadvance = vec[7];
+    float page = vec[8];
+    symbols[id].uv = glm::vec3(x / U, 1.f - y / V - w / V, pageOffset)
+    symbols[id].uvSize = glm::vec2(width / U, height / V);
+    symbols[id].pxSize = glm::vec2(width, height);
+    symbols[id].pxOffset = glm::vec2(xoffset, -yoffset);
+    symbols[id].pxAdvance = xadvance;
 }
 void Font::loadKerning(const std::string &word){
     auto &&vec = rgxVecIntSearch(word);
-    fontInfo->m_letters[vec[1]].kerning[vec[0]] = vec[2];
+    kerning[int(vec[0]<<16) & vec[1]] = vec[2];
 }
-void Font::loadLetters(std::string name){
+void Font::load(const std::string &name, std::vector<std::string> &imagesToLoad){
     std::string path = "../res/fonts/";
     std::ifstream file;
     file.open(path + name + ".fnt", std::ios::in);
-    std::string infoFaceLine, commonLine, countLine, buff;
-    getline(file, infoFaceLine);
-    getline(file, commonLine);
-    getline(file, buff); // non used
-    getline(file, countLine);
-    //
-    float sizeU = (float)rgxIntSearch(commonLine, R"(scaleW=([\-]?[0-9]+))");
-    float sizeV = (float)rgxIntSearch(commonLine, R"(scaleH=([\-]?[0-9]+))");
-    int charCount = rgxIntSearch(countLine, R"(count=([\-]?[0-9]+))");
 
+    std::string info, common, count, page;
     std::vector<std::string> lines;
-    lines.resize(charCount);
+    getline(file, info);
+    getline(file, common);
+    int pages = rgxIntSearch(common, R"(pages=([0-9]+))");
+    int pageOffset = imagesToLoad.size();
+    for(auto i=0; i<pages; i++){
+        getline(file, page);
+        imagesToLoad.push_back(regexStringSearch(page, R"(file=\"(.*)\")"));
+    }
+    getline(file, count);
 
-    this->height = rgxIntSearch(commonLine, R"(lineHeight=([\-]?[0-9]+))");
+    float sizeU = (float)rgxIntSearch(common, R"(scaleW=([\-]?[0-9]+))");
+    float sizeV = (float)rgxIntSearch(common, R"(scaleH=([\-]?[0-9]+))");
+    int charCount = rgxIntSearch(count, R"(count=([\-]?[0-9]+))");
 
-    for (int i = 0; i < charCount; i++)
+    for(int i = 0; i < charCount; i++){
         getline(file, lines[i]);
-    for(auto &it : lines)
-        insertFont(it, sizeU, sizeV);
-    getline(file, buff);
-    /// TODO: kerning
-    int    kerningCount = rgxIntSearch(commonLine, R"(count=([\-]?[0-9]+))");
+    }
+    for(auto &it : lines){
+        loadCharacter(it, sizeU, sizeV);
+    }
+
+    int kerningCount = rgxIntSearch(common, R"(count=([\-]?[0-9]+))");
     lines.resize(kerningCount);
 
     for (int i = 0; i < kerningCount; i++)
@@ -274,30 +247,7 @@ void Font::loadLetters(std::string name){
     for(auto &it : lines)
         loadKerning(it);
 
-
     file.close();
-}
-void Font::loadSymbols(std::string name){
-    std::string path = "../res/fonts/";
-    std::ifstream file;
-    file.open(path + name + ".fnt", std::ios::in);
-    std::string infoFaceLine, commonLine, countLine, buff;
-    getline(file, infoFaceLine);
-    getline(file, commonLine);
-    getline(file, buff); // non used
-    getline(file, countLine);
-    //
-    float sizeU = (float)rgxIntSearch(commonLine, R"(scaleW=([\-]?[0-9]+))");
-    float sizeV = (float)rgxIntSearch(commonLine, R"(scaleH=([\-]?[0-9]+))");
-    int charCount = rgxIntSearch(countLine, R"(count=([\-]?[0-9]+))");
-    std::vector<std::string> lines;
-    lines.resize(charCount);
-    this->height = rgxIntSearch(commonLine, R"(lineHeight=([\-]?[0-9]+))");;
-
-    for (int i = 0; i < charCount; i++)
-        getline(file, lines[i]);
-    for(auto &it : lines)
-        insertSymbol(it, sizeU, sizeV);
 }
 
 }

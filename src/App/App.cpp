@@ -67,7 +67,7 @@ public:
     }
     void render(){
         renderer->beginFrame();
-        renderer->utils->drawBackground("city");
+        // renderer->utils->drawBackground("city");
         renderer->utils->blurBuffer();
         // renderer->utils->renderBlurred();
         renderer->uiDrawer->renderUis(uiUpdater->getUis());
