@@ -25,7 +25,6 @@ void UIDrawer::renderUIsToTexture(std::vector<std::shared_ptr<UI::IMGUI>> &uis){
         u32 i = 0;
         renderBoxes(*ui, i);
         renderImages(*ui, i);
-        renderFonts(*ui);
     }
 
     gl::Enable(gl::BLEND);

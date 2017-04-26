@@ -34,8 +34,7 @@ in vec4 vColor;
 out vec4 outColor;
 
 void main(){
-    outColor = vec4(1);
-    outColor.a = texture(uTexture, vUV+vec3(0,0,0)).r;
+    outColor = vColor * texture(uTexture, vUV).r;
 }
 
 #endif

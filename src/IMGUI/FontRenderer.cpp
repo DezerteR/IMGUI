@@ -77,8 +77,6 @@ float FontRenderer::render(const std::string &text, int fontId, glm::vec2 pxPosi
         }
 
         clog(character, "symbol.pxSize", symbol.pxSize);
-        // glm::vec2 pxPosition = currentPosition + symbol.pxOffset;
-        // pxPosition.y -= symbol.pxSize.y - font.base;
         renderedSymbols.push_back(RenderedSymbol{
             currentPosition + symbol.pxOffset,
             symbol.pxSize,
