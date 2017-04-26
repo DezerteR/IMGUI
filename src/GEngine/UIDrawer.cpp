@@ -29,7 +29,10 @@ void UIDrawer::renderUIsToTexture(std::vector<std::shared_ptr<UI::IMGUI>> &uis){
     }
 
     gl::Enable(gl::BLEND);
-    gl::BlendFunc(gl::ONE, gl::ONE_MINUS_SRC_ALPHA);
+    gl::BlendFunc(gl::SRC_ALPHA, gl::ONE);
+    for(auto &ui : uis){
+        renderFonts(*ui);
+    }
 
     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
 
@@ -82,16 +85,18 @@ void UIDrawer::renderImages(UI::IMGUI &ui, u32 layer){
 }
 
 void UIDrawer::renderFonts(UI::IMGUI &ui){
-    auto shader = assets::getShader("UIText");
-    shader.bind();
-    shader.uniform("uWidth", window.size.x);
-    shader.uniform("uHeight", window.size.y);
-
-    context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
     if(ui.fontRenderer.renderedSymbols.size()){
-        shader.atlas("uTexture", assets::getAlbedoArray("fonts").id);
 
-        auto &renderData = ui.fontRenderer.renderedSymbols;
+        for(auto &it : ui.fontRenderer.renderedSymbols){
+            clog(it.pxPosition, it.pxSize, it.uv, it.uvSize);
+        }
+
+        auto shader = assets::getShader("UIText");
+        shader.bind();
+        shader.uniform("uFrameSize", window.size);
+        shader.atlas("uTexture", assets::getAlbedoArray("Fonts").id);
+
+        context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
 
         context.getRandomBuffer().update(ui.fontRenderer.renderedSymbols)
             .attrib(1).pointer_float(2, sizeof(UI::RenderedSymbol), (void*)offsetof(UI::RenderedSymbol, pxPosition)).divisor(1)
@@ -100,7 +105,7 @@ void UIDrawer::renderFonts(UI::IMGUI &ui){
             .attrib(4).pointer_float(2, sizeof(UI::RenderedSymbol), (void*)offsetof(UI::RenderedSymbol, uvSize)).divisor(1)
             .attrib(5).pointer_color(sizeof(UI::RenderedSymbol), (void*)offsetof(UI::RenderedSymbol, color)).divisor(1);
 
-        gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, renderData.size());
+        gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, ui.fontRenderer.renderedSymbols.size());
         ui.fontRenderer.renderedSymbols.clear();
     }
 

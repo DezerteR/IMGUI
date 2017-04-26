@@ -181,6 +181,16 @@ void statement(std::string text, float lifeTime){
     statements.emplace_back(Statement{text, lifeTime});
 }
 
+std::vector<std::string> splitString(const std::string &text, char token){
+    std::vector<std::string> out;
+    std::istringstream f(text);
+    std::string s;
+    while (getline(f, s, token)) {
+        out.push_back(s);
+    }
+    return out;
+}
+
 const std::string getName(const std::string &name){
     using namespace boost::filesystem;
     path p(name);

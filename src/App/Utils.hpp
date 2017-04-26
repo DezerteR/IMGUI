@@ -88,6 +88,7 @@ bool writeBinary(const std::string &path, std::function<void(std::ofstream&)> &f
 bool readBinary(const std::string &path, std::function<void(i8*, u32)> &fun);
 
 // void listFiles(std::set<std::string>&files, std::string pathName, std::string fileType);
+std::vector<std::string> splitString(const std::string&, char);
 const std::string getName(const std::string &name);
 const std::string getExt(const std::string &name);
 const std::string cutExt(const std::string &name);

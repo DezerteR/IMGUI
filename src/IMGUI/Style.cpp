@@ -23,6 +23,6 @@ Style::Style(){
     colors[Image & None] = 0x90'90'90'40;
     colors[Image & Hover] = 0x90'90'90'40;
     colors[Image & Press] = 0x90'90'90'40;
-    colors[Font] = 0x10'10'10'aa;
+    colors[Font] = 0xff'ff'ff'ff;
 }
 }

@@ -8,8 +8,9 @@ namespace font {
         UI = 100,
         HUD = 200,
         Console = 300,
+        Mono = 400,
 
-        Default = UI + 12,
+        Default = UI + 14,
         UI12 = UI + 12,
         UI16 = UI + 16,
     };}
@@ -46,7 +47,8 @@ public:
 
     void load(const std::string &name, std::vector<std::string> &imagesToLoad);
 
-    float height;
+    float lineHeight;
+    float base;
 };
 
 int convertFontFilenameToId(const std::string&);

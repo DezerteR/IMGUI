@@ -226,6 +226,7 @@ bool ResourceLoader::loadFonts(){
         loadFont(font, imagesToLoad);
     }
 
+    for(auto &it : imagesToLoad) it = "../res/textures/" + it;
     assets::TextureArray out;
     out.id = ImageUtils::loadArrayToGpu(imagesToLoad).id;
     assets::addAlbedoArray(id, out, "Fonts");

@@ -320,7 +320,7 @@ IMGUI& IMGUI::text(const std::string &text, int font, int flag, int caretPositio
     item.flag |= flag;
     item.text = text;
     item.caret = caretPosition;
-    item.textOffset += fontRenderer.render(item.text, font, item.box.xy() + glm::vec2(item.textOffset+3, floor(item.box.w/2.f - assets::getFont(font).height/2)), item.textColor ? item.textColor : m_style.font.color, item.caret);
+    item.textOffset += fontRenderer.render(item.text, font, item.box.xy() + glm::vec2(item.textOffset+3, floor(item.box.w/2.f - assets::getFont(font).lineHeight/2)), item.textColor ? item.textColor : m_style.colors[Style::Font], item.caret);
 
     if(item.flag & CenterText){
         fontRenderer.move( (item.box.z - item.textOffset)/2-3, 0);
@@ -336,7 +336,7 @@ IMGUI& IMGUI::text(const std::string &text, int font, int flag, int caretPositio
 IMGUI& IMGUI::text(const std::u16string &text, int font, int flag, int caretPosition){
     item.flag |= flag;
     item.caret = caretPosition;
-    item.textOffset += fontRenderer.render(text, font, item.box.xy() + glm::vec2(item.textOffset+3, floor(item.box.w/2.f - assets::getFont(font).height/2)), item.textColor ? item.textColor : m_style.font.color, item.caret);
+    item.textOffset += fontRenderer.render(text, font, item.box.xy() + glm::vec2(item.textOffset+3, floor(item.box.w/2.f - assets::getFont(font).lineHeight/2)), item.textColor ? item.textColor : m_style.colors[Style::Font], item.caret);
 
     if(item.flag & CenterText){
         fontRenderer.move( (item.box.z - item.textOffset)/2-3, 0);
