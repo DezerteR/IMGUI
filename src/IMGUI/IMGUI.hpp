@@ -185,6 +185,7 @@ class IMGUI
 public:
     UIGraphicComponent m_uiGraphic;
     TextEditor textEditor;
+    FontRenderer fontRenderer;
 
     IMGUI(glm::vec4 bounds, Updater &updater) : m_uiGraphic(m_style), bounds(bounds), updater(updater){}
 
@@ -273,10 +274,8 @@ public:
     IMGUI& onActive(std::function<void(Box rect)>fun);
     IMGUI& onEdition(std::function<void(void)>fun);
 
-    IMGUI& text(const std::string &text, const std::string &font, int flag = 0x2000, int caretPosition = -1);
-    IMGUI& text(const std::string &text, int flag = 0x2000, int caretPosition = -1);
-    IMGUI& text(const std::u16string &text, int flag = 0x2000, int caretPosition = -1);
-    IMGUI& text(const std::u16string &text, const std::string &font, int flag = 0x2000, int caretPosition = -1);
+    IMGUI& text(const std::string &text, int font = font::Default, int flag = 0x2000, int caretPosition = -1);
+    IMGUI& text(const std::u16string &text, int font = font::Default, int flag = 0x2000, int caretPosition = -1);
 
     // IMGUI& format(const std::string &font, int flag = 0x2000, int caretPosition = -1){
     //     this->m_flag |= flag;

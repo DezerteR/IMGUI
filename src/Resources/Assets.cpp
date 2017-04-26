@@ -65,9 +65,6 @@ Shader& getShader(const std::string &name){
 UI::Font& getFont(int id){
     return fonts[id];
 }
-std::unordered_map<std::string, UI::FontRenderer>& getFonts(){
-    return fonts;
-}
 
 std::string findArrayWithTextureName(const std::string &name){
     for(auto &array : albedoArrays){
@@ -97,9 +94,6 @@ ResourceLoader getNewLoader(){
 
 void relaseResources(u32 id){}
 
-void addFont(UI::FontRenderer &font, const std::string &name){
-    fonts[name] = font;
-}
 void addImageSet(ImageSet &imageSet, const std::string &name){
     imageSets[name] = imageSet;
 }

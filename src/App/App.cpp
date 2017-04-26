@@ -26,7 +26,7 @@ public:
     Yaml settings;
     Yaml resources;
 
-    App() : window(1600, 900, "IMGUI"){}
+    App() : window(640, 400, "IMGUI"){}
 
     void initialize(){
         uiUpdater = std::make_unique<UI::Updater>(window);
@@ -41,7 +41,6 @@ public:
         ResourceLoader loader;
         loader.loadShaders();
         loader.loadResources(resources);
-        loader.loadFonts(resources);
     }
 
     void run(){
@@ -67,8 +66,8 @@ public:
     }
     void render(){
         renderer->beginFrame();
-        renderer->utils->drawBackground("pmk");
-        // renderer->utils->drawBackground("city");
+        // renderer->utils->drawBackground("pmk");
+        renderer->utils->drawBackground("city");
         renderer->utils->blurBuffer();
         // renderer->utils->renderBlurred();
         renderer->uiDrawer->renderUis(uiUpdater->getUis());

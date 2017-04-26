@@ -51,6 +51,7 @@ void ResourceLoader::loadResources(const Yaml &cfg){
         }
         assets::addVao(modelLoader.build(), "Common");
     }
+    loadFonts();
 }
 
 /**
@@ -218,7 +219,7 @@ bool ResourceLoader::loadObj(std::fstream &file){
     return true;
 }
 
-bool ResourceLoader::loadFonts(const Yaml &cfg){
+bool ResourceLoader::loadFonts(){
     std::vector<std::string> imagesToLoad;
     auto fontsToLoad = listDirectory("../res/fonts/");
     for(auto &font : fontsToLoad){
@@ -231,9 +232,9 @@ bool ResourceLoader::loadFonts(const Yaml &cfg){
 
     return true;
 }
-bool ResourceLoader::loadFont(const std::string &font, std::vector<std::string> &imagesToLoad){
-    UI::Font &font = assets::getFont(name);
-    font.load(font, imagesToLoad);
+bool ResourceLoader::loadFont(const std::string &fontFileName, std::vector<std::string> &imagesToLoad){
+    UI::Font &font = assets::getFont(UI::convertFontFilenameToId(fontFileName));
+    font.load(fontFileName, imagesToLoad);
     return true;
 }
 

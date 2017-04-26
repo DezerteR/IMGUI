@@ -1,5 +1,6 @@
 #include "FontRenderer.hpp"
-#include "assets.hpp"
+#include "Assets.hpp"
+#include "Logging.hpp"
 #include <regex>
 #include <fstream>
 
@@ -74,7 +75,7 @@ float FontRenderer::render(const std::string &text, int fontId, glm::vec2 positi
     if (lastTextSize > 0) // compute len
         LastTextLength = currentPosition[0] - position.x;
 
-    placeCaret(text, position, color, caretPosition);
+    placeCaret(text, fontId, position, color, caretPosition);
     renderedSymbols.m_size = renderedSymbols.uv.size();
     return LastTextLength + 1.f;
 }
@@ -124,11 +125,12 @@ void FontRenderer::placeCaret(const std::string &text, int fontId, glm::vec2 pos
         if((u32)caretPosition >= text.size() && text.size() > 0)
             renderedSymbols.positions.push_back(renderedSymbols.positions.back() + renderedSymbols.sizes.back()*glm::vec2(1, 0));
         else if(caretPosition == 0)
-            renderedSymbols.positions.push_back(position - glm::vec2(0, letters[character].size.y - height));
+            renderedSymbols.positions.push_back(position - glm::vec2(0, letters[character].pxSize.y - height));
         else
             renderedSymbols.positions.push_back(renderedSymbols.positions[caretPosition]);
+        renderedSymbols.sizes.push_back(letters[character].pxSize);
         renderedSymbols.uv.push_back(letters[character].uv);
-        renderedSymbols.sizes.push_back(letters[character].size);
+        renderedSymbols.uvSize.push_back(letters[character].uvSize);
         renderedSymbols.colors.push_back(color);
     }
 }
@@ -159,6 +161,7 @@ int rgxIntSearch(const std::string &word, const std::string &rgx){
     std::smatch match;
     std::regex regex(rgx);
     std::regex_search(word, match, regex);
+    log("regex:", rgx);
     return std::stoi(match[1]);
 }
 std::string regexStringSearch(const std::string &word, const std::string &rgx){
@@ -167,22 +170,22 @@ std::string regexStringSearch(const std::string &word, const std::string &rgx){
     std::regex_search(word, match, regex);
     return match[1];
 }
-std::vector<float> rgxVecFloatSearch(const std::string &_word){
+std::vector<float> rgxVecFloatSearch(const std::string &line){
     std::vector<float> out;
     std::smatch match;
     std::regex regex(R"(([\-]?[0-9]+))");
-    std::string word = _word;
+    std::string word = line;
     while (std::regex_search(word, match, regex)){
         out.push_back(std::stof(match[1]));
         word = match.suffix().str();
     }
     return out;
 }
-std::vector<int> rgxVecIntSearch(const std::string &_word){
+std::vector<int> rgxVecIntSearch(const std::string &line){
     std::vector<int> out;
     std::smatch match;
     std::regex regex(R"(([\-]?[0-9]+))");
-    std::string word = _word;
+    std::string word = line;
     while (std::regex_search(word, match, regex)){\
         out.push_back(std::stoi(match[1]));
         word = match.suffix().str();
@@ -191,7 +194,7 @@ std::vector<int> rgxVecIntSearch(const std::string &_word){
 }
 
 void Font::loadCharacter(const std::string &line, float U, float V, int pageOffset){
-    auto &&vec = rgxVecFloatSearch(word);
+    auto &&vec = rgxVecFloatSearch(line);
     int16_t id = vec[0];
     float x = vec[1]; // ~
     float y = vec[2]; // distance from top to top of letter
@@ -201,7 +204,7 @@ void Font::loadCharacter(const std::string &line, float U, float V, int pageOffs
     float yoffset = vec[6];
     float xadvance = vec[7];
     float page = vec[8];
-    symbols[id].uv = glm::vec3(x / U, 1.f - y / V - w / V, pageOffset)
+    symbols[id].uv = glm::vec3(x / U, 1.f - y / V - width / V, page + pageOffset);
     symbols[id].uvSize = glm::vec2(width / U, height / V);
     symbols[id].pxSize = glm::vec2(width, height);
     symbols[id].pxOffset = glm::vec2(xoffset, -yoffset);
@@ -214,11 +217,15 @@ void Font::loadKerning(const std::string &word){
 void Font::load(const std::string &name, std::vector<std::string> &imagesToLoad){
     std::string path = "../res/fonts/";
     std::ifstream file;
-    file.open(path + name + ".fnt", std::ios::in);
-
+    file.open(path + name, std::ios::in);
+    if(not file.good()){
+        error("Can't open file", path + name);
+    }
+    log("Font:", name);
     std::string info, common, count, page;
     std::vector<std::string> lines;
     getline(file, info);
+    height = rgxIntSearch(info, R"(size=([0-9]+))");
     getline(file, common);
     int pages = rgxIntSearch(common, R"(pages=([0-9]+))");
     int pageOffset = imagesToLoad.size();
@@ -230,16 +237,18 @@ void Font::load(const std::string &name, std::vector<std::string> &imagesToLoad)
 
     float sizeU = (float)rgxIntSearch(common, R"(scaleW=([\-]?[0-9]+))");
     float sizeV = (float)rgxIntSearch(common, R"(scaleH=([\-]?[0-9]+))");
-    int charCount = rgxIntSearch(count, R"(count=([\-]?[0-9]+))");
+    int charCount = rgxIntSearch(count, R"(chars count=([\-]?[0-9]+))");
 
+    lines.resize(charCount);
     for(int i = 0; i < charCount; i++){
         getline(file, lines[i]);
     }
     for(auto &it : lines){
-        loadCharacter(it, sizeU, sizeV);
+        loadCharacter(it, sizeU, sizeV, pageOffset);
     }
-
-    int kerningCount = rgxIntSearch(common, R"(count=([\-]?[0-9]+))");
+    std::string kernings;
+    getline(file, kernings);
+    int kerningCount = rgxIntSearch(kernings, R"(kernings count=([\-]?[0-9]+))");
     lines.resize(kerningCount);
 
     for (int i = 0; i < kerningCount; i++)

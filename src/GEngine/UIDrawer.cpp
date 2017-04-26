@@ -88,20 +88,21 @@ void UIDrawer::renderFonts(UI::IMGUI &ui){
     shader.uniform("uHeight", window.size.y);
 
     context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
-    // if(ui.fontRenderer.renderedSymbols.m_size){
-    //     shader.textureArray("uTexture", assets::getAlbedoArray("fonts"));
+    if(ui.fontRenderer.renderedSymbols.m_size){
+        shader.atlas("uTexture", assets::getAlbedoArray("fonts").id);
 
-    //     auto &renderData = ui.fontRenderer.renderedSymbols;
+        auto &renderData = ui.fontRenderer.renderedSymbols;
 
-    //     context.getRandomBuffer().update(renderData.positions).attrib(1).pointer_float(2).divisor(1);
-    //     context.getRandomBuffer().update(renderData.sizes).attrib(2).pointer_float(2).divisor(1);
-    //     context.getRandomBuffer().update(renderData.uvs).attrib(3).pointer_float(4).divisor(1);
-    //     context.getRandomBuffer().update(renderData.colors).attrib(4).pointer_color().divisor(1);
+        context.getRandomBuffer().update(renderData.positions).attrib(1).pointer_float(2).divisor(1);
+        context.getRandomBuffer().update(renderData.sizes).attrib(2).pointer_float(2).divisor(1);
+        context.getRandomBuffer().update(renderData.uv).attrib(3).pointer_float(3).divisor(1);
+        context.getRandomBuffer().update(renderData.uvSize).attrib(4).pointer_float(2).divisor(1);
+        context.getRandomBuffer().update(renderData.colors).attrib(5).pointer_color().divisor(1);
 
-    //     gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, renderData.m_size);
-    // }
+        gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, renderData.m_size);
+        ui.fontRenderer.clear(0);
+    }
 
-    // renderData.clear(0);
     context.errors();
 }
 

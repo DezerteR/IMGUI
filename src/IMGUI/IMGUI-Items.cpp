@@ -316,60 +316,33 @@ IMGUI& IMGUI::onEdition(std::function<void(void)>fun){
     return *this;
 }
 
-IMGUI& IMGUI::text(const std::string &text, const std::string &font, int flag, int caretPosition){
+IMGUI& IMGUI::text(const std::string &text, int font, int flag, int caretPosition){
     item.flag |= flag;
     item.text = text;
     item.caret = caretPosition;
-    item.textOffset += assets::getFont(font).render(item.text, item.box.xy() + glm::vec2(item.textOffset+3, floor(item.box.w/2.f - assets::getFont(font).height/2)), item.textColor ? item.textColor : m_style.font.color, item.caret);
+    item.textOffset += fontRenderer.render(item.text, font, item.box.xy() + glm::vec2(item.textOffset+3, floor(item.box.w/2.f - assets::getFont(font).height/2)), item.textColor ? item.textColor : m_style.font.color, item.caret);
 
     if(item.flag & CenterText){
-        assets::getFont(font).move( (item.box.z - item.textOffset)/2-3, 0);
+        fontRenderer.move( (item.box.z - item.textOffset)/2-3, 0);
     }
     else if(item.flag & TextToRight){
-        assets::getFont(font).move( (item.box.z - item.textOffset)-3, 0);
+        fontRenderer.move( (item.box.z - item.textOffset)-3, 0);
     }
     if(LastTextHeight > 0)
-        assets::getFont(font).move( 0, LastTextHeight/2);
+        fontRenderer.move( 0, LastTextHeight/2);
 
     return *this;
 }
-IMGUI& IMGUI::text(const std::string &text, int flag, int caretPosition){
-    item.flag |= flag;
-    item.text = text;
-    item.caret = caretPosition;
-    item.textOffset += assets::getFont(m_font).render(text, item.box.xy() + glm::vec2(item.textOffset+3, floor(item.box.w/2.f - assets::getFont(m_font).height/2.f)), item.textColor, item.caret);
-
-    if(item.flag & CenterText){
-        assets::getFont(m_font).move( (item.box.z - item.textOffset)/2-3, 0);
-    }
-    else if(item.flag & TextToRight){
-        assets::getFont(m_font).move( (item.box.z - item.textOffset)-5, 0);
-    }
-    return *this;
-}
-IMGUI& IMGUI::text(const std::u16string &text, const std::string &font, int flag, int caretPosition){
+IMGUI& IMGUI::text(const std::u16string &text, int font, int flag, int caretPosition){
     item.flag |= flag;
     item.caret = caretPosition;
-    item.textOffset += assets::getFont(font).render(text, item.box.xy() + glm::vec2(item.textOffset+3, floor(item.box.w/2.f - assets::getFont(font).height/2)), item.textColor ? item.textColor : m_style.font.color, item.caret);
+    item.textOffset += fontRenderer.render(text, font, item.box.xy() + glm::vec2(item.textOffset+3, floor(item.box.w/2.f - assets::getFont(font).height/2)), item.textColor ? item.textColor : m_style.font.color, item.caret);
 
     if(item.flag & CenterText){
-        assets::getFont(font).move( (item.box.z - item.textOffset)/2-3, 0);
+        fontRenderer.move( (item.box.z - item.textOffset)/2-3, 0);
     }
     else if(item.flag & TextToRight){
-        assets::getFont(font).move( (item.box.z - item.textOffset)-3, 0);
-    }
-    return *this;
-}
-IMGUI& IMGUI::text(const std::u16string &text, int flag, int caretPosition){
-    item.flag |= flag;
-    item.caret = caretPosition;
-    item.textOffset += assets::getFont(m_font).render(text, item.box.xy() + glm::vec2(item.textOffset+3, floor(item.box.w/2.f - assets::getFont(m_font).height/2)), item.textColor ? item.textColor : m_style.font.color, item.caret);
-
-    if(item.flag & CenterText){
-        assets::getFont(m_font).move( (item.box.z - item.textOffset)/2-3, 0);
-    }
-    else if(item.flag & TextToRight){
-        assets::getFont(m_font).move( (item.box.z - item.textOffset)-3, 0);
+        fontRenderer.move( (item.box.z - item.textOffset)-3, 0);
     }
     return *this;
 }
@@ -673,7 +646,7 @@ IMGUI& IMGUI::slider(i32 &value, i32 min, i32 max){
 IMGUI& IMGUI::operator () (int flags){
     if(item.lClicked || item.rClicked)
         item.box += Box(-1,-1,2,2);
-    if (!(m_buttonFlags & NoInsertion))
+    if (!(item.buttonFlags & NoInsertion))
          currentBox().insertRect(item.box);
 
     if(item.style){

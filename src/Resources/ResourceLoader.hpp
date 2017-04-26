@@ -34,8 +34,8 @@ public:
 
     Image loadImage(const std::string &name);
     bool loadImage(const Yaml &cfg);
-    bool loadFonts(const Yaml &cfg);
-    bool loadFont(const Yaml &cfg);
+    bool loadFonts();
+    bool loadFont(const std::string &font, std::vector<std::string> &imagesToLoad);
     bool loadImageSet(const Yaml &cfg);
     bool loadObj(std::fstream &file);
     std::string  loadFile(std::string fname);
