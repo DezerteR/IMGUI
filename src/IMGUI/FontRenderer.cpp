@@ -23,20 +23,13 @@ float FontRenderer::getLen(const std::string &text){
 }
 
 void FontRenderer::clear(int layer){
-    empty = true;
-    LastTextHeight = 0;
-    renderedSymbols.m_size = 0;
-    renderedSymbols.positions.clear();
-    renderedSymbols.uv.clear();
-    renderedSymbols.uvSize.clear();
-    renderedSymbols.sizes.clear();
-    renderedSymbols.colors.clear();
+    renderedSymbols.clear();
 }
 void FontRenderer::move(int x, int y){
-    u32 len = renderedSymbols.positions.size();
+    u32 len = renderedSymbols.size();
     glm::vec2 offset(x, y);
     for (u32 i = len - lastTextSize; i < len; i++){
-        renderedSymbols.positions[i] += offset;
+        renderedSymbols[i].pxPosition += offset;
     }
 }
 
@@ -64,11 +57,13 @@ float FontRenderer::render(const std::string &text, int fontId, glm::vec2 positi
             currentPosition[0] += font.kerning[int(text[i - 1])<<16 & character];
         }
 
-        renderedSymbols.positions.push_back(currentPosition + symbol.pxOffset);
-        renderedSymbols.sizes.push_back(symbol.pxSize);
-        renderedSymbols.uv.push_back(symbol.uv);
-        renderedSymbols.uvSize.push_back(symbol.uvSize);
-        renderedSymbols.colors.push_back(color);
+        renderedSymbols.push_back(RenderedSymbol{
+            .pxPosition = currentPosition + symbol.pxOffset,
+            .pxSize = symbol.pxSize,
+            .uv = symbol.uv,
+            .uvSize = symbol.uvSize,
+            .color = color
+        });
         currentPosition.x += symbol.pxAdvance;
     }
 
@@ -76,7 +71,6 @@ float FontRenderer::render(const std::string &text, int fontId, glm::vec2 positi
         LastTextLength = currentPosition[0] - position.x;
 
     placeCaret(text, fontId, position, color, caretPosition);
-    renderedSymbols.m_size = renderedSymbols.uv.size();
     return LastTextLength + 1.f;
 }
 float FontRenderer::render(const std::u16string &text, int fontId, glm::vec2 position, HexColor color, int caretPosition){
@@ -100,13 +94,14 @@ float FontRenderer::render(const std::u16string &text, int fontId, glm::vec2 pos
         else if (i > 0 and character < 256){ // kerning
             currentPosition[0] += font.kerning[int(text[i - 1])<<16 & character];
         }
-        renderedSymbols.m_size++;
 
-        renderedSymbols.positions.push_back(currentPosition + symbol.pxOffset);
-        renderedSymbols.sizes.push_back(symbol.pxSize);
-        renderedSymbols.uv.push_back(symbol.uv);
-        renderedSymbols.uvSize.push_back(symbol.uvSize);
-        renderedSymbols.colors.push_back(color);
+        renderedSymbols.push_back(RenderedSymbol{
+            .pxPosition = currentPosition + symbol.pxOffset,
+            .pxSize = symbol.pxSize,
+            .uv = symbol.uv,
+            .uvSize = symbol.uvSize,
+            .color = color
+        });
         currentPosition.x += symbol.pxAdvance;
     }
 
@@ -114,7 +109,6 @@ float FontRenderer::render(const std::u16string &text, int fontId, glm::vec2 pos
         LastTextLength = currentPosition[0] - position.x;
 
     // placeCaret(text, position, color, caretPosition);
-    renderedSymbols.m_size = renderedSymbols.uv.size();
     return LastTextLength + 1.f;
 }
 void FontRenderer::placeCaret(const std::string &text, int fontId, glm::vec2 position, HexColor color, int caretPosition){
@@ -123,15 +117,18 @@ void FontRenderer::placeCaret(const std::string &text, int fontId, glm::vec2 pos
     if(caretPosition >= 0){ // key
         u8 character = '|';
         if((u32)caretPosition >= text.size() && text.size() > 0)
-            renderedSymbols.positions.push_back(renderedSymbols.positions.back() + renderedSymbols.sizes.back()*glm::vec2(1, 0));
+            position = renderedSymbols.back().pxPosition + renderedSymbols.back().pxSize*glm::vec2(1, 0);
         else if(caretPosition == 0)
-            renderedSymbols.positions.push_back(position - glm::vec2(0, letters[character].pxSize.y - height));
+            position = position - glm::vec2(0, letters[character].pxSize.y - height);
         else
-            renderedSymbols.positions.push_back(renderedSymbols.positions[caretPosition]);
-        renderedSymbols.sizes.push_back(letters[character].pxSize);
-        renderedSymbols.uv.push_back(letters[character].uv);
-        renderedSymbols.uvSize.push_back(letters[character].uvSize);
-        renderedSymbols.colors.push_back(color);
+            position = renderedSymbols[caretPosition].pxPosition;
+        renderedSymbols.push_back(RenderedSymbol{
+            .pxPosition = position,
+            .pxSize = letters[character].pxSize,
+            .uv = letters[character].uv,
+            .uvSize = letters[character].uvSize,
+            .color = color
+        });
     }
 }
 

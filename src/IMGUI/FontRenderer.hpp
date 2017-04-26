@@ -26,18 +26,13 @@ struct UnicodeSymbolInfo {
     float pxAdvance;// px
 };
 
-struct RenderedData
+struct RenderedSymbol
 {
-    int ID;
-    int m_size;
-    glm::vec2 size;
-    /// TODO: zamienić na AoS
-    std::vector <glm::vec2> positions; // pozycja na ekranie
-    std::vector <glm::vec2> sizes; // wymiar na ekranie
-    std::vector <glm::vec3> uv; // pozycja uv
-    std::vector <glm::vec2> uvSize; // wymiar uv
-    std::vector <HexColor> colors; // kolor
-    std::vector <float> total; // wszystko *reinterpret_cast<float*>(&v)
+    glm::vec2 pxPosition;
+    glm::vec2 pxSize;
+    glm::vec3 uv;
+    glm::vec2 uvSize;
+    HexColor color;
 };
 
 class Font
@@ -69,7 +64,7 @@ public:
     void move(int x, int y);
 
     std::string name;
-    RenderedData renderedSymbols;
+    std::vector<RenderedSymbol> renderedSymbols;
     int height;
     int lastTextSize{ 0 };
     bool empty {true};
