@@ -6,7 +6,9 @@
 void UITester::run(){
     ui.table(UI::Vertical | UI::ToLeft | UI::ToTop | UI::Draw)
       .border(1)
-      .pxSize(500, -300);
+    //   .relPos(0, 1)
+    //   .pos(0, -50)
+      .size(500, -300);
     //   .overridePosition(100, 550);
 
     ui.button(i,30).color(color::white).text("Lorem ipsum dolor sit amet, consectetur adipiscing elit,").onLMB([]{log("A");})();

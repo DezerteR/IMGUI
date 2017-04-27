@@ -32,12 +32,11 @@ struct IMGUIBox
     IMGUI *imgui {nullptr};
 
     IMGUIBox& box(int flags, Box spawnPosition, IMGUI *_imgui);
-    IMGUIBox& relSize(float x = 0, float y = 0); /// size relative to parent container
-    IMGUIBox& pxSize(int x = 0, int y = 0); /// size in pixels
+    IMGUIBox& size(float x = 0, float y = 0); /// size relative to parent container
 
-    IMGUIBox& relPos(float x = 0, float y = 0); // position relative to parent, takes parent container size
-    IMGUIBox& pxPos(int x = 0, int y = 0); // position relative to parent start point
+    IMGUIBox& pos(float x = 0, float y = 0); // position relative to parent, takes parent container size
     IMGUIBox& screenPos(int x = 0, int y = 0); // position relative to screen
+    IMGUIBox& offset(int x = 0, int y = 0); // move box relative to calculated spawn point
 
     IMGUIBox& border(int x = 0, int y = 0);
     IMGUIBox& operator()();
@@ -232,6 +231,7 @@ public:
     IMGUI& rect(glm::vec2 xy, int w, int h);
     IMGUI& rect(glm::vec2 xy, glm::vec2 wh);
     IMGUI& rect(int w, int h);
+    IMGUI& rect(float w, float h);
     IMGUI& rect(int w, int h, HexColor color);
     IMGUI& rect(Box r, HexColor color);
     IMGUI& rect(int x, int y, int w, int h, HexColor color);
