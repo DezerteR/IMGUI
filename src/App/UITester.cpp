@@ -4,9 +4,9 @@
 #include "Logging.hpp"
 
 void UITester::run(){
-    ui.table(UI::LayoutVertical | UI::AlignLeft | UI::AlignTop | UI::Draw)
+    ui.table(UI::Vertical | UI::ToLeft | UI::ToTop | UI::Draw)
       .border(1)
-      .size(500, -300);
+      .pxSize(500, -300);
     //   .overridePosition(100, 550);
 
     ui.button(i,30).color(color::white).text("Lorem ipsum dolor sit amet, consectetur adipiscing elit,").onLMB([]{log("A");})();

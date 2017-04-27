@@ -1,4 +1,4 @@
-KRZY#pragma once
+#pragma once
 #include <GLFW/glfw3.h>
 #include <functional>
 #include "Utils.hpp"

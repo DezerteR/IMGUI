@@ -85,7 +85,7 @@ IMGUIBox& IMGUIBox::relSize(float x, float y){
 
     return *this;
 }
-IMGUIBox& IMGUIBox::pxSize(float x, float y){
+IMGUIBox& IMGUIBox::pxSize(int x, int y){
     // if(m_flags & ToTop)
         // y *= -1;
     // if(m_flags & ToRight)
@@ -139,7 +139,7 @@ IMGUIBox& IMGUIBox::relPos(float x, float y){
     m_box.y = parentBox.y + v;
     return *this;
 }
-IMGUIBox& IMGUIBox::pxPos(float x, float y){
+IMGUIBox& IMGUIBox::pxPos(int x, int y){
     m_flags |= AbsolutePosition;
     float u(x),v(y);
     auto &parentBox = imgui->parentBox().m_box;
@@ -163,7 +163,7 @@ IMGUIBox& IMGUIBox::pxPos(float x, float y){
     m_box.y = parentBox.y + v;
     return *this;
 }
-IMGUIBox& IMGUIBox::screeenPos(float x, float y){
+IMGUIBox& IMGUIBox::screenPos(int x, int y){
     m_flags |= AbsolutePosition;
     float u(x),v(y);
     auto &parentBox = imgui->parentBox().m_box;
@@ -211,7 +211,7 @@ IMGUIBox& IMGUIBox::screeenPos(float x, float y){
     //     return *this;
     // }
 IMGUIBox& IMGUIBox::border(int x, int y){
-    m_border = b;
+    m_border = x;
     return *this;
 }
 IMGUIBox& IMGUIBox::operator()(){
