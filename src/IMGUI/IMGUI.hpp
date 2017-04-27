@@ -274,10 +274,10 @@ public:
     IMGUI& onActive(std::function<void(Box rect)>fun);
     IMGUI& onEdition(std::function<void(void)>fun);
 
-    IMGUI& text(const std::string &text, int font = font::Default, int flag = 0x2000, int caretPosition = -1);
-    IMGUI& text(const std::u16string &text, int font = font::Default, int flag = 0x2000, int caretPosition = -1);
+    IMGUI& text(const std::string &text, int font = font::Default, font::TextPosition flag = font::Left, int caretPosition = -2);
+    IMGUI& text(const std::u16string &text, int font = font::Default, font::TextPosition flag = font::Left, int caretPosition = -2);
 
-    // IMGUI& format(const std::string &font, int flag = 0x2000, int caretPosition = -1){
+    // IMGUI& format(const std::string &font, int flag = 0x2000, int caretPosition = -2){
     //     this->m_flag |= flag;
     //     this->m_caretPosition = caretPosition;
     //     this->m_font = font;

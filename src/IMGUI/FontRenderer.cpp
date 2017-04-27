@@ -52,31 +52,78 @@ void FontRenderer::move(int x, int y){
     }
 }
 
+float Font::calculateTextLength(const std::string &text){
+    /// TODO: be aware of eol, maybe split text on lines and process each alone?
+    float res(0);
+    for(int i=text.size()-1; i>=0; i--) res += symbols[text[i]].pxAdvance;
+    return res;
+}
+
+float Font::calculateTextLength(const std::u16string &text){
+    /// TODO: be aware of eol, maybe split text on lines and process each alone?
+    float res(0);
+    for(int i=text.size()-1; i>=0; i--) res += symbols[text[i]].pxAdvance;
+    return res;
+}
+
 /// Rendering
-float FontRenderer::render(const std::string &text, int fontId, glm::vec2 pxPosition, HexColor color, int caretPosition){
+float FontRenderer::render(const std::string &text, const int fontId, const glm::vec4 pxBox, const font::TextPosition flag, const HexColor color, const int caretPosition){
     auto &font = assets::getFont(fontId);
     empty = false;
     LastTextHeight = 0;
     LastTextLength = 0;
     lastTextSize = text.size();
-    glm::vec2 currentPosition = pxPosition;
+    glm::vec2 currentPosition = pxBox.xy();
     u8 character;
+
+    if(flag == font::Left){}
+    else if(flag == font::Center){
+        float textLength = font.calculateTextLength(text);
+        currentPosition.x += std::max(0.f, pxBox.z/2.f - std::min(textLength/2.f, pxBox.z));
+    }
+    else if(flag == font::Right){
+        float textLength = font.calculateTextLength(text);
+        currentPosition.x += std::max(0.f, pxBox.z - textLength);
+    }
+
+    currentPosition.y += pxBox.w/2.f - font.base/2.f;
+
+    currentPosition.x = ceil(currentPosition.x);
+    currentPosition.y = ceil(currentPosition.y);
 
     for(u32 i = 0; i < text.size(); i++){
         character = text[i];
         const auto &symbol = font.symbols[character];
+
+        if (i > 0){ // kerning
+            currentPosition.x -= font.kerning[int(text[i - 1])<<16 & character];
+        }
+
+        if(currentPosition.x + symbol.pxAdvance + font.dotLen*2 >= pxBox.x+pxBox.z){
+            /// TODO: go to end and check if has \n
+            currentPosition.x -= font.kerning[int('.')<<16 & character];
+            for(int i=0; i<2; i++){
+
+                const auto &dot = font.symbols['.'];
+                renderedSymbols.push_back(RenderedSymbol{
+                    currentPosition + dot.pxOffset,
+                    dot.pxSize,
+                    dot.uv,
+                    dot.uvSize,
+                    color
+                });
+                currentPosition.x += dot.pxAdvance;
+            }
+            break;
+        }
+
         if(character == '\n'){ // new line
-            LastTextLength = std::max(LastTextLength, currentPosition[0] - pxPosition.x);
+            LastTextLength = std::max(LastTextLength, currentPosition[0] - pxBox.x);
             LastTextHeight += font.lineHeight;
-            currentPosition = pxPosition - glm::vec2(0, LastTextHeight);
+            currentPosition = pxBox.xy() - glm::vec2(0, LastTextHeight);
             continue;
         }
 
-        if (i > 0){ // kerning
-            currentPosition.x += font.kerning[int(text[i - 1])<<16 & character];
-        }
-
-        clog(character, "symbol.pxSize", symbol.pxSize);
         renderedSymbols.push_back(RenderedSymbol{
             currentPosition + symbol.pxOffset,
             symbol.pxSize,
@@ -88,68 +135,109 @@ float FontRenderer::render(const std::string &text, int fontId, glm::vec2 pxPosi
     }
 
     if (lastTextSize > 0) // compute len
-        LastTextLength = currentPosition[0] - pxPosition.x;
+        LastTextLength = currentPosition[0] - pxBox.x;
 
-    placeCaret(text, fontId, pxPosition, color, caretPosition);
+    placeCaret(fontId, currentPosition, color, caretPosition);
     return LastTextLength + 1.f;
 }
-float FontRenderer::render(const std::u16string &text, int fontId, glm::vec2 pxPosition, HexColor color, int caretPosition){
-    auto &font = assets::getFont(fontId);
+float FontRenderer::render(const std::u16string &text, const int fontId, const glm::vec4 pxBox, const font::TextPosition flag, const HexColor color, const int caretPosition){
+  auto &font = assets::getFont(fontId);
     empty = false;
     LastTextHeight = 0;
     LastTextLength = 0;
     lastTextSize = text.size();
-    glm::vec2 currentPosition = pxPosition;
-    char16_t character;
+    glm::vec2 currentPosition = pxBox.xy();
+    u8 character;
 
-    for (u32 i = 0; i < text.size(); i++){
+    if(flag == font::Left){}
+    else if(flag == font::Center){
+        float textLength = font.calculateTextLength(text);
+        currentPosition.x += std::max(0.f, pxBox.z/2.f - std::min(textLength/2.f, pxBox.z));
+    }
+    else if(flag == font::Right){
+        float textLength = font.calculateTextLength(text);
+        currentPosition.x += std::max(0.f, pxBox.z - textLength);
+    }
+
+    currentPosition.y += ceil(pxBox.w/2.f - font.base/2.f);
+
+    currentPosition.x = ceil(currentPosition.x);
+    currentPosition.y = ceil(currentPosition.y);
+
+    for(u32 i = 0; i < text.size(); i++){
         character = text[i];
-        auto &symbol = font.symbols[character];
-        if (character == '\n'){ // new line
-            LastTextLength = std::max(LastTextLength, currentPosition[0] - pxPosition.x);
+        const auto &symbol = font.symbols[character];
+
+        if (i > 0){ // kerning
+            currentPosition.x -= font.kerning[int(text[i - 1])<<16 & character];
+        }
+
+        if(currentPosition.x + symbol.pxAdvance + font.dotLen*2 >= pxBox.x+pxBox.z){
+            /// TODO: go to end and check if has \n
+            currentPosition.x -= font.kerning[int('.')<<16 & character];
+            for(int i=0; i<2; i++){
+
+                const auto &dot = font.symbols['.'];
+                renderedSymbols.push_back(RenderedSymbol{
+                    currentPosition + dot.pxOffset,
+                    dot.pxSize,
+                    dot.uv,
+                    dot.uvSize,
+                    color
+                });
+                currentPosition.x += dot.pxAdvance;
+            }
+            break;
+        }
+
+        if(character == '\n'){ // new line
+            LastTextLength = std::max(LastTextLength, currentPosition[0] - pxBox.x);
             LastTextHeight += font.lineHeight;
-            currentPosition = pxPosition - glm::vec2(0, LastTextHeight);
+            currentPosition = pxBox.xy() - glm::vec2(0, LastTextHeight);
             continue;
         }
-        else if (i > 0 and character < 256){ // kerning
-            currentPosition[0] += font.kerning[int(text[i - 1])<<16 & character];
-        }
+
 
         renderedSymbols.push_back(RenderedSymbol{
-            .pxPosition = currentPosition + symbol.pxOffset,
-            .pxSize = symbol.pxSize,
-            .uv = symbol.uv,
-            .uvSize = symbol.uvSize,
-            .color = color
+            currentPosition + symbol.pxOffset,
+            symbol.pxSize,
+            symbol.uv,
+            symbol.uvSize,
+            color
         });
         currentPosition.x += symbol.pxAdvance;
     }
 
     if (lastTextSize > 0) // compute len
-        LastTextLength = currentPosition[0] - pxPosition.x;
+        LastTextLength = currentPosition[0] - pxBox.x;
 
-    // placeCaret(text, position, color, caretPosition);
+    placeCaret(fontId, currentPosition, color, caretPosition);
     return LastTextLength + 1.f;
 }
-void FontRenderer::placeCaret(const std::string &text, int fontId, glm::vec2 position, HexColor color, int caretPosition){
+void FontRenderer::placeCaret(const int fontId, glm::vec2 position, const HexColor color, const int caretPosition){
     auto &font = assets::getFont(fontId);
-    auto &letters = font.symbols;
-    if(caretPosition >= 0){ // key
-        u8 character = '|';
-        if((u32)caretPosition >= text.size() && text.size() > 0)
-            position = renderedSymbols.back().pxPosition + renderedSymbols.back().pxSize*glm::vec2(1, 0);
-        else if(caretPosition == 0)
-            position = position - glm::vec2(0, letters[character].pxSize.y - font.lineHeight);
-        else
-            position = renderedSymbols[caretPosition].pxPosition;
-        renderedSymbols.push_back(RenderedSymbol{
-            .pxPosition = position,
-            .pxSize = letters[character].pxSize,
-            .uv = letters[character].uv,
-            .uvSize = letters[character].uvSize,
-            .color = color
-        });
+
+    if(caretPosition == -2) return;
+    if(caretPosition == -1 and renderedSymbols.size() > 0){
+        position.x = renderedSymbols[renderedSymbols.size() - lastTextSize].pxPosition.x;
     }
+    else if(caretPosition == -1 and renderedSymbols.empty() == 0){
+        // position = renderedSymbols[lastTextSize-1].pxPosition;
+    }
+    else {
+        int cpos = std::min(renderedSymbols.size()-1, renderedSymbols.size() - lastTextSize + caretPosition);
+        position.x = renderedSymbols[cpos].pxPosition.x + renderedSymbols[cpos].pxSize.x;
+    };
+
+    const auto &symbol = font.symbols['|'];
+
+    renderedSymbols.push_back(RenderedSymbol{
+        .pxPosition = position + symbol.pxOffset*glm::vec2(0,1),
+        .pxSize = symbol.pxSize,
+        .uv = symbol.uv,
+        .uvSize = symbol.uvSize,
+        .color = color
+    });
 }
 
 /// Loading utils
@@ -224,8 +312,8 @@ void Font::loadCharacter(const std::string &line, float imageWidth, float imageH
     symbols[id].uv = glm::vec3(x / imageWidth, (imageHeight - y - pxHeight) / imageHeight, page + pageOffset);
     symbols[id].uvSize = glm::vec2(pxWidth / imageWidth, pxHeight / imageHeight);
     symbols[id].pxSize = glm::vec2(pxWidth, pxHeight);
-    symbols[id].pxOffset = glm::vec2(xoffset, -yoffset - pxHeight - base);
-    symbols[id].pxAdvance = xadvance+2;
+    symbols[id].pxOffset = glm::vec2(xoffset, -yoffset  - (pxHeight - base));
+    symbols[id].pxAdvance = xadvance;
 }
 void Font::loadKerning(const std::string &word){
     auto &&vec = rgxVecIntSearch(word);
@@ -276,6 +364,8 @@ void Font::load(const std::string &name, std::vector<std::string> &imagesToLoad)
         loadKerning(it);
 
     file.close();
+
+    dotLen = symbols['.'].pxAdvance;
 }
 
 }

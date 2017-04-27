@@ -9,7 +9,7 @@ void IMGUI::printTextEditorValue(){
         // item.text += this->textEditor.value();
         if(MS500OSCILATOR)
             item.caret = item.text.size() + textEditor.caretPosition();
-        text(this->textEditor.value(),0,item.caret);
+        text(this->textEditor.value(), font::Default, font::Left, item.caret);
 }
 
 

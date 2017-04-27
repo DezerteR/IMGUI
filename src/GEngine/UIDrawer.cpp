@@ -85,11 +85,6 @@ void UIDrawer::renderImages(UI::IMGUI &ui, u32 layer){
 
 void UIDrawer::renderFonts(UI::IMGUI &ui){
     if(ui.fontRenderer.renderedSymbols.size()){
-
-        for(auto &it : ui.fontRenderer.renderedSymbols){
-            clog(it.pxPosition, it.pxSize, it.uv, it.uvSize);
-        }
-
         auto shader = assets::getShader("UIText");
         shader.bind();
         shader.uniform("uFrameSize", window.size);

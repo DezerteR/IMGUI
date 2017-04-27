@@ -316,34 +316,27 @@ IMGUI& IMGUI::onEdition(std::function<void(void)>fun){
     return *this;
 }
 
-IMGUI& IMGUI::text(const std::string &text, int font, int flag, int caretPosition){
-    item.flag |= flag;
+IMGUI& IMGUI::text(const std::string &text, int font, font::TextPosition flag, int caretPosition){
     item.text = text;
     item.caret = caretPosition;
-    item.textOffset += fontRenderer.render(item.text, font, item.box.xy() + glm::vec2(item.textOffset+3, floor(item.box.w/2.f - assets::getFont(font).lineHeight/2)), item.textColor ? item.textColor : m_style.colors[Style::Font], item.caret);
-
-    if(item.flag & CenterText){
-        fontRenderer.move( (item.box.z - item.textOffset)/2-3, 0);
-    }
-    else if(item.flag & TextToRight){
-        fontRenderer.move( (item.box.z - item.textOffset)-3, 0);
-    }
-    if(LastTextHeight > 0)
-        fontRenderer.move( 0, LastTextHeight/2);
+    item.textOffset += fontRenderer.render(item.text,
+                                           font,
+                                           item.box + glm::vec4(item.textOffset+3, 0, -6, 0),
+                                           flag,
+                                           item.textColor ? item.textColor : m_style.colors[Style::Font],
+                                           item.caret);
 
     return *this;
 }
-IMGUI& IMGUI::text(const std::u16string &text, int font, int flag, int caretPosition){
-    item.flag |= flag;
+IMGUI& IMGUI::text(const std::u16string &text, int font, font::TextPosition flag, int caretPosition){
     item.caret = caretPosition;
-    item.textOffset += fontRenderer.render(text, font, item.box.xy() + glm::vec2(item.textOffset+3, floor(item.box.w/2.f - assets::getFont(font).lineHeight/2)), item.textColor ? item.textColor : m_style.colors[Style::Font], item.caret);
+    item.textOffset += fontRenderer.render(item.text,
+                                           font,
+                                           item.box + glm::vec4(item.textOffset+3, 0, -6, 0),
+                                           flag,
+                                           item.textColor ? item.textColor : m_style.colors[Style::Font],
+                                           item.caret);
 
-    if(item.flag & CenterText){
-        fontRenderer.move( (item.box.z - item.textOffset)/2-3, 0);
-    }
-    else if(item.flag & TextToRight){
-        fontRenderer.move( (item.box.z - item.textOffset)-3, 0);
-    }
     return *this;
 }
 
@@ -690,7 +683,7 @@ void IMGUI::restoreDefaults(){
     item.active = 0;
     item.flag = 0;
     item.text = "";
-    item.caret = -1;
+    item.caret = -2;
     // item.font = ;
     item.textOffset = 0;
     item.fontSize = 0;

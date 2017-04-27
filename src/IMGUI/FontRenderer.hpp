@@ -13,7 +13,13 @@ namespace font {
         Default = UI + 14,
         UI12 = UI + 12,
         UI16 = UI + 16,
-    };}
+    };
+    enum TextPosition {
+        Left,
+        Center,
+        Right,
+    };
+}
 
 namespace UI {
 extern float LastTextLength;
@@ -46,9 +52,12 @@ public:
     std::unordered_map<uint32_t, float> kerning;/// a.id<<16 & b.id
 
     void load(const std::string &name, std::vector<std::string> &imagesToLoad);
+    float calculateTextLength(const std::string &text);
+    float calculateTextLength(const std::u16string &text);
 
     float lineHeight;
     float base;
+    float dotLen;
 };
 
 int convertFontFilenameToId(const std::string&);
@@ -56,11 +65,11 @@ int convertFontFilenameToId(const std::string&);
 class FontRenderer
 {
 private:
-    void placeCaret(const std::string &text, int fontId, glm::vec2 position, HexColor color, int caretPosition);
+    void placeCaret(const int fontId, glm::vec2 position, const HexColor color, const int caretPosition);
 
 public:
-    float render(const std::string &text, int fontId, glm::vec2 position, HexColor color, int caretPosition = -1);
-    float render(const std::u16string &text, int fontId, glm::vec2 position, HexColor color, int caretPosition = -1);
+    float render(const std::string &text, const int fontId, const glm::vec4 box, const font::TextPosition flag=font::Left, const HexColor color=0, const int caretPosition = -2);
+    float render(const std::u16string &text, const int fontId, const glm::vec4 box, const font::TextPosition flag=font::Left, const HexColor color=0, const int caretPosition = -2);
     float getLen(const std::string &text);
     void clear(int layer);
     void move(int x, int y);
