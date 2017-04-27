@@ -24,7 +24,7 @@ void IMGUI::begin(){
         accu2 = 0.f;
         MS500OSCILATOR = !MS500OSCILATOR;
     }
-    if(not updater.mb.lmbRepeat) currentSlider = nullptr;
+    if(not updater.mb.lmbRepeat) item.currentSlider = nullptr;
     restoreDefaults();
 }
 void IMGUI::end(){

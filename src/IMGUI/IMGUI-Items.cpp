@@ -446,7 +446,6 @@ IMGUI& IMGUI::edit(std::string &value, int flag){
 
 }
 IMGUI& IMGUI::edit(const std::string &value, std::function<void(const std::string&)> callback, void *identifier){
-    // magic :P
     item.editBox = true;
     item.activeEdition = textEditor.valuePointer == identifier;
 

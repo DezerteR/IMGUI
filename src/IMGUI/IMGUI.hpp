@@ -404,7 +404,6 @@ private:
         }
         return false;
     }
-    void *currentSlider { nullptr };
 };
 
 template<typename T>
