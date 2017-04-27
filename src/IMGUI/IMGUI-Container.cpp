@@ -31,10 +31,10 @@ IMGUIBox& IMGUI::endTable(){
 
     Box rect = group.m_box;
     if((group.m_flags & FixedSize) != FixedSize){
-        if(group.m_flags & LayoutVertical)
+        if(group.m_flags & Vertical)
             rect.w = (abs(group.m_box.y - group.m_currStart.y)+b)*sign(rect.w);
 
-        else if(group.m_flags & LayoutHorizontal)
+        else if(group.m_flags & Horizontal)
             rect.z = (abs(group.m_box.x - group.m_currStart.x)+b)*sign(rect.z);
     }
 
@@ -67,10 +67,10 @@ IMGUIBox& IMGUIBox::box(int flags, Box spawnPosition, IMGUI *_imgui){
 
     return *this;
 }
-IMGUIBox& IMGUIBox::size(float x, float y){
-    // if(m_flags & AlignTop)
+IMGUIBox& IMGUIBox::relSize(float x, float y){
+    // if(m_flags & ToTop)
         // y *= -1;
-    // if(m_flags & AlignRight)
+    // if(m_flags & ToRight)
         // x *= -1;
     auto &parentBox = imgui->parentBox().m_box;
     if(x>-1 && x<1){
@@ -85,19 +85,37 @@ IMGUIBox& IMGUIBox::size(float x, float y){
 
     return *this;
 }
-IMGUIBox& IMGUIBox::overridePosition(float x, float y){
-    float u(x),v(y);
+IMGUIBox& IMGUIBox::pxSize(float x, float y){
+    // if(m_flags & ToTop)
+        // y *= -1;
+    // if(m_flags & ToRight)
+        // x *= -1;
     auto &parentBox = imgui->parentBox().m_box;
+    if(x>-1 && x<1){
+        x = floor(parentBox.z * x);
+    }
+    if(y>-1 && y<1){
+        y = floor(parentBox.w * y);
+    }
+    m_box.z = x;
+    m_box.w = y;
+    m_flags |= FixedSize;
 
-    m_flags |= AbsolutePosition;
-
-    m_currStart.x = x;
-    m_currStart.y = y;
-    m_box.x = x;
-    m_box.y = y;
     return *this;
 }
-IMGUIBox& IMGUIBox::position(float x, float y){
+// IMGUIBox& IMGUIBox::overridePosition(float x, float y){
+    //     float u(x),v(y);
+    //     auto &parentBox = imgui->parentBox().m_box;
+
+    //     m_flags |= AbsolutePosition;
+
+    //     m_currStart.x = x;
+    //     m_currStart.y = y;
+    //     m_box.x = x;
+    //     m_box.y = y;
+    //     return *this;
+    // }
+IMGUIBox& IMGUIBox::relPos(float x, float y){
     m_flags |= AbsolutePosition;
     float u(x),v(y);
     auto &parentBox = imgui->parentBox().m_box;
@@ -121,30 +139,78 @@ IMGUIBox& IMGUIBox::position(float x, float y){
     m_box.y = parentBox.y + v;
     return *this;
 }
-IMGUIBox& IMGUIBox::offset(float x, float y){
-    m_flags |= RelativePosition;
+IMGUIBox& IMGUIBox::pxPos(float x, float y){
+    m_flags |= AbsolutePosition;
     float u(x),v(y);
     auto &parentBox = imgui->parentBox().m_box;
     // auto &parent = imgui->parentBox().m_currStart;
     if(x>-1 && x<1){
-        u += floor(parentBox.z*x);
+        u = floor(parentBox.z*x);
     }
     if(y>-1 && y<1){
-        v += floor(parentBox.w*y);
+        v = floor(parentBox.w*y);
     }
-    if(x<0){
-        u += parentBox.z;
-    }
-    if(y<0){
-        v += parentBox.w;
-    }
-    m_currStart.x += u;
-    m_currStart.y += v;
-    m_box.x += u;
-    m_box.y += v;
+    // if(x<0){
+        // u += parentBox.z;
+    // }
+    // if(y<0){
+
+        // v += parentBox.w;
+    // }
+    m_currStart.x = parentBox.x + u;
+    m_currStart.y = parentBox.y + v;
+    m_box.x = parentBox.x + u;
+    m_box.y = parentBox.y + v;
     return *this;
 }
-IMGUIBox& IMGUIBox::border(int b){
+IMGUIBox& IMGUIBox::screeenPos(float x, float y){
+    m_flags |= AbsolutePosition;
+    float u(x),v(y);
+    auto &parentBox = imgui->parentBox().m_box;
+    // auto &parent = imgui->parentBox().m_currStart;
+    if(x>-1 && x<1){
+        u = floor(parentBox.z*x);
+    }
+    if(y>-1 && y<1){
+        v = floor(parentBox.w*y);
+    }
+    // if(x<0){
+        // u += parentBox.z;
+    // }
+    // if(y<0){
+
+        // v += parentBox.w;
+    // }
+    m_currStart.x = parentBox.x + u;
+    m_currStart.y = parentBox.y + v;
+    m_box.x = parentBox.x + u;
+    m_box.y = parentBox.y + v;
+    return *this;
+}
+// IMGUIBox& IMGUIBox::offset(float x, float y){
+    //     m_flags |= RelativePosition;
+    //     float u(x),v(y);
+    //     auto &parentBox = imgui->parentBox().m_box;
+    //     // auto &parent = imgui->parentBox().m_currStart;
+    //     if(x>-1 && x<1){
+    //         u += floor(parentBox.z*x);
+    //     }
+    //     if(y>-1 && y<1){
+    //         v += floor(parentBox.w*y);
+    //     }
+    //     if(x<0){
+    //         u += parentBox.z;
+    //     }
+    //     if(y<0){
+    //         v += parentBox.w;
+    //     }
+    //     m_currStart.x += u;
+    //     m_currStart.y += v;
+    //     m_box.x += u;
+    //     m_box.y += v;
+    //     return *this;
+    // }
+IMGUIBox& IMGUIBox::border(int x, int y){
     m_border = b;
     return *this;
 }
@@ -158,10 +224,10 @@ IMGUIBox& IMGUI::endBox(){
 
     Box rect = group.m_box;
     // if(!(group.m_flags & FixedSize)){
-        if(group.m_flags & LayoutVertical)
+        if(group.m_flags & Vertical)
             rect.w = std::max((abs(group.m_box.y - group.m_currStart.y)+b), std::abs(group.m_box.w))*sign(rect.w);
 
-        else if(group.m_flags & LayoutHorizontal)
+        else if(group.m_flags & Horizontal)
             rect.z = std::max((abs(group.m_box.x - group.m_currStart.x)+b), std::abs(group.m_box.z))*sign(rect.z);
     // }
 
@@ -196,17 +262,17 @@ Box IMGUIBox::getSpawnPoint(const Box &r){
     float h = r.w;
     float w = r.z;
 
-    if(m_flags & LayoutVertical){
+    if(m_flags & Vertical){
         float mod;
-        if(m_flags & AlignTop)
+        if(m_flags & ToTop)
             mod = -1.f;
-        else if(m_flags & AlignBottom)
+        else if(m_flags & ToBottom)
             mod = 1.f;
 
-        if(m_flags & AlignLeft){
+        if(m_flags & ToLeft){
             rect = m_currStart + Box(border,mod*border,w, h);
         }
-        else if(m_flags & AlignRight){
+        else if(m_flags & ToRight){
             rect = m_currStart + Box(-border-w,mod*border,w, h);
         }
         if(mod == -1.f){
@@ -214,17 +280,17 @@ Box IMGUIBox::getSpawnPoint(const Box &r){
         }
     }
 
-    else if(m_flags & LayoutHorizontal){
+    else if(m_flags & Horizontal){
         float mod;
-        if(m_flags & AlignLeft)
+        if(m_flags & ToLeft)
             mod = 1.f;
-        else if(m_flags & AlignRight)
+        else if(m_flags & ToRight)
             mod = -1.f;
 
-        if(m_flags & AlignBottom){
+        if(m_flags & ToBottom){
             rect = m_currStart + Box(mod*border,1*border,w, h);
         }
-        else if(m_flags & AlignTop){
+        else if(m_flags & ToTop){
             rect = m_currStart + Box(mod*border,-1*border-h,w, h);
         }
         if(mod == -1.f){
@@ -245,18 +311,18 @@ Box IMGUIBox::insertRect(const Box &r){ // r is fixed
     float w = std::max(abs(r1.x), abs(r2.x))+1;
     float h = std::max(abs(r1.y), abs(r2.y))+1;
 
-    if(m_flags & LayoutVertical){
+    if(m_flags & Vertical){
 
         float mod = 0;
-        if(m_flags & AlignTop)
+        if(m_flags & ToTop)
             mod = -1.f;
-        else if(m_flags & AlignBottom)
+        else if(m_flags & ToBottom)
             mod = 1.f;
 
-        if(m_flags & AlignLeft){
+        if(m_flags & ToLeft){
             m_box.z = std::max(m_box.z, w+2*border);
         }
-        else if(m_flags & AlignRight){
+        else if(m_flags & ToRight){
             m_box.z = std::min(m_box.z, -w-2*border);
         }
 
@@ -267,18 +333,18 @@ Box IMGUIBox::insertRect(const Box &r){ // r is fixed
 
     }
 
-    else if(m_flags & LayoutHorizontal){
+    else if(m_flags & Horizontal){
         float mod=1.f;
-        if(m_flags & AlignLeft)
+        if(m_flags & ToLeft)
             mod = 1.f;
-        else if(m_flags & AlignRight)
+        else if(m_flags & ToRight)
             mod = -1.f;
 
-        if(m_flags & AlignBottom){
+        if(m_flags & ToBottom){
             m_box[3] = std::max(m_box[3], h+2*border);
 
         }
-        else if(m_flags & AlignTop){
+        else if(m_flags & ToTop){
             m_box[3] = std::min(m_box[3], -h-2*border);
         }
 
@@ -311,8 +377,8 @@ Box IMGUI::placeGroup(int flags){
 
     Box m_freeRect = bounds;
 
-    if(flags & LayoutVertical){
-        if(flags & AlignLeft && flags & AlignTop){
+    if(flags & Vertical){
+        if(flags & ToLeft && flags & ToTop){
             pos = Box(m_freeRect.x, m_freeRect.y+m_freeRect.w,0,0);
             while(findCollision(pos, out)){
                 if(out.y + out.w < 300)
@@ -324,7 +390,7 @@ Box IMGUI::placeGroup(int flags){
             pos.z = m_freeRect.z - pos.x + m_freeRect.x;
             pos.w = m_freeRect.y - pos.y;
         }
-        else if(flags & AlignRight && flags & AlignTop){
+        else if(flags & ToRight && flags & ToTop){
             pos = Box(m_freeRect.x+m_freeRect.z, m_freeRect.y+m_freeRect.w,0,0);
             while(findCollision(pos, out)){
                 // if(out.y + out.w < 300)
@@ -337,7 +403,7 @@ Box IMGUI::placeGroup(int flags){
             pos.z = m_freeRect.x - pos.x;
             pos.w = m_freeRect.y - pos.y;
         }
-        else if(flags & AlignLeft && flags & AlignBottom){
+        else if(flags & ToLeft && flags & ToBottom){
             pos = Box(m_freeRect.x, m_freeRect.y,0,0);
             while(findCollision(pos, out)){
                 if(out.z < out.w)
@@ -349,7 +415,7 @@ Box IMGUI::placeGroup(int flags){
             pos.z = m_freeRect.x+m_freeRect.z - pos.x;
             pos.w = m_freeRect.y+m_freeRect.w - pos.y;
         }
-        else if(flags & AlignRight && flags & AlignBottom){
+        else if(flags & ToRight && flags & ToBottom){
             pos = Box(m_freeRect.x+m_freeRect.z, m_freeRect.y,0,0);
             while(findCollision(pos, out)){
                 if(out.y + out.w > 250)
@@ -365,9 +431,9 @@ Box IMGUI::placeGroup(int flags){
 
     }
 
-    else if(flags & LayoutHorizontal){
+    else if(flags & Horizontal){
 
-        if(flags & AlignLeft && flags & AlignTop){
+        if(flags & ToLeft && flags & ToTop){
             pos = Box(m_freeRect.x, m_freeRect.y+m_freeRect.w,0,0);
             while(findCollision(pos, out)){
                 if(out.x + out.z > 300)
@@ -379,7 +445,7 @@ Box IMGUI::placeGroup(int flags){
             pos.z = m_freeRect.z - pos.x + m_freeRect.x;
             pos.w = m_freeRect.y - pos.y;
         }
-        else if(flags & AlignRight && flags & AlignTop){
+        else if(flags & ToRight && flags & ToTop){
             pos = Box(m_freeRect.x+m_freeRect.z, m_freeRect.y+m_freeRect.w,0,0);
             while(findCollision(pos, out)){
                 if(out.w < out.z){
@@ -393,7 +459,7 @@ Box IMGUI::placeGroup(int flags){
             pos.z = m_freeRect.x - pos.x;
             pos.w = m_freeRect.y - pos.y;
         }
-        else if(flags & AlignLeft && flags & AlignBottom){
+        else if(flags & ToLeft && flags & ToBottom){
             pos = Box(m_freeRect.x, m_freeRect.y,0,0);
             while(findCollision(pos, out)){
                 if(out.x + out.z > 300)
@@ -405,7 +471,7 @@ Box IMGUI::placeGroup(int flags){
             pos.z = m_freeRect.x+m_freeRect.z - pos.x;
             pos.w = m_freeRect.y+m_freeRect.w - pos.y;
         }
-        else if(flags & AlignRight && flags & AlignBottom){
+        else if(flags & ToRight && flags & ToBottom){
             pos = Box(m_freeRect.x+m_freeRect.z, m_freeRect.y,0,0);
             while(findCollision(pos, out)){
                 if(out.x + out.z < 300)

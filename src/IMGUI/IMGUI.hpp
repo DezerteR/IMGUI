@@ -1,4 +1,4 @@
-#pragma once
+KRZY#pragma once
 #include <GLFW/glfw3.h>
 #include <functional>
 #include "Utils.hpp"
@@ -22,34 +22,26 @@ struct UISettings
 
 struct IMGUIBox
 {
-    int m_flags{ 0 };
+    int m_flags {0};
     Box m_box;
     Box m_currStart;
     Box m_freeRect;
     int m_border;
     int m_style;
     int m_rectIdx;
-    IMGUI *imgui;
+    IMGUI *imgui {nullptr};
 
     IMGUIBox& box(int flags, Box spawnPosition, IMGUI *_imgui);
-    IMGUIBox& size(float x = 0, float y = 0);
-    IMGUIBox& size(const Box &box){ return size(box.z, box.w); }
-    IMGUIBox& size(glm::vec2 box){ return position(box.x, box.y); }
+    IMGUIBox& relSize(float x = 0, float y = 0); /// size relative to parent container
+    IMGUIBox& pxSize(int x = 0, int y = 0); /// size in pixels
 
-    IMGUIBox& overridePosition(float x = 0, float y = 0); // box isn't inserted
-    IMGUIBox& position(float x = 0, float y = 0); // box isn't inserted
-    IMGUIBox& position(const Box &box){ return position(box.x, box.y); } // box isn't inserted
-    IMGUIBox& position(glm::vec2 box){ return position(box.x, box.y); } // box isn't inserted
+    IMGUIBox& relPos(float x = 0, float y = 0); // position relative to parent, takes parent container size
+    IMGUIBox& pxPos(int x = 0, int y = 0); // position relative to parent start point
+    IMGUIBox& screenPos(int x = 0, int y = 0); // position relative to screen
 
-    IMGUIBox& offset(float x = 0, float y = 0); // makes box inserted
-    IMGUIBox& offset(const Box &box){ return offset(box.x, box.y); }
-    IMGUIBox& offset(glm::vec2 box){ return offset(box.x, box.y); }
-
-    IMGUIBox& border(int b = 0);
+    IMGUIBox& border(int x = 0, int y = 0);
     IMGUIBox& operator()();
 
-
-    // "derived" from imgui
     Box getSpawnPoint(const Box &r);
     Box insertRect(const Box &r);
     Box placeRect(const Box &r);
@@ -73,23 +65,24 @@ struct FigureInfo
 
 enum GroupFlags
 {
-    LayoutVertical = 0x01,
-    LayoutHorizontal = 0x02,
+    Vertical = 0x01,
+    Horizontal = 0x02,
 
-    AlignLeft = 0x04,
-    AlignRight = 0x08,
+    ToLeft = 0x04,
+    ToRight = 0x08,
 
-    AlignTop = 0x10,
-    AlignBottom = 0x20,
-    Centered = 0x40,
+    ToCenterV = 0x10,
+    ToCenterH = 0x20,
 
-    Draw = 0x100,
-    Background = 0x200,
+    ToTop = 0x40,
+    ToBottom = 0x80,
+    Centered = 0x100,
 
-    HotFix1 = 0x400,
+    Draw = 0x200,
+    Background = 0x400,
+
+    HotFix1 = 0x800,
     CenterText = 0x1000,
-    TextToLeft = 0x2000,
-    TextToRight = 0x4000,
     FixedSize = 0x10000,
     FixedPos = 0x20000,
     FixedPos2 = 0x40000,
@@ -98,12 +91,12 @@ enum GroupFlags
     AbsolutePosition = 0x200000,
     NoInsertion = 0x400000,
 
-    HorizonBottom = LayoutHorizontal | AlignLeft | AlignBottom,
-    HorizonTop = LayoutHorizontal | AlignLeft | AlignTop,
-    VertBottom = LayoutVertical | AlignLeft | AlignBottom,
-    VertTop = LayoutVertical | AlignLeft | AlignTop,
+    HorizonBottom = Horizontal | ToLeft | ToBottom,
+    HorizonTop = Horizontal | ToLeft | ToTop,
+    VertBottom = Vertical | ToLeft | ToBottom,
+    VertTop = Vertical | ToLeft | ToTop,
 
-    ClearLayout = LayoutHorizontal | LayoutVertical | Draw | FixedSize | FixedPos,
+    ClearLayout = Horizontal | Vertical | Draw | FixedSize | FixedPos,
 };
 
 enum class TypeInfo : int32_t
@@ -420,9 +413,9 @@ void loadStyles(IMGUI &ui);
 
 }
 extern UI::IMGUI ui;
-#define vertical(x) ui.box(UI::LayoutVertical); \
+#define vertical(x) ui.box(UI::Vertical); \
                                                 x\
                                         ui.endBox();
-#define horizontal(x) ui.box(UI::LayoutHorizontal); \
+#define horizontal(x) ui.box(UI::Horizontal); \
                                                 x\
                                         ui.endBox();
