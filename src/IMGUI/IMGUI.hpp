@@ -32,8 +32,14 @@ struct IMGUIBox
     IMGUI *imgui {nullptr};
 
     IMGUIBox& box(int flags, Box spawnPosition, IMGUI *_imgui);
+    IMGUIBox& size(int x = 0, int y = 0); /// size relative to parent container
+    IMGUIBox& size(int x = 0, float y = 0); /// size relative to parent container
+    IMGUIBox& size(float x = 0, int y = 0); /// size relative to parent container
     IMGUIBox& size(float x = 0, float y = 0); /// size relative to parent container
 
+    IMGUIBox& pos(int x = 0, int y = 0); // position relative to parent, takes parent container size
+    IMGUIBox& pos(int x = 0, float y = 0); // position relative to parent, takes parent container size
+    IMGUIBox& pos(float x = 0, int y = 0); // position relative to parent, takes parent container size
     IMGUIBox& pos(float x = 0, float y = 0); // position relative to parent, takes parent container size
     IMGUIBox& screenPos(int x = 0, int y = 0); // position relative to screen
     IMGUIBox& offset(int x = 0, int y = 0); // move box relative to calculated spawn point

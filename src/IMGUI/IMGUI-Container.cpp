@@ -67,18 +67,90 @@ IMGUIBox& IMGUIBox::box(int flags, Box spawnPosition, IMGUI *_imgui){
 
     return *this;
 }
-IMGUIBox& IMGUIBox::size(float x, float y){
+IMGUIBox& IMGUIBox::size(int x, int y){
     const auto &parentBox = imgui->parentBox().m_box;
-    if(x>-1 && x<1){
-        x = floor(parentBox.z * x);
-    }
-    if(y>-1 && y<1){
-        y = floor(parentBox.w * y);
-    }
+
     m_box.z = x;
     m_box.w = y;
     m_flags |= FixedSize;
 
+    return *this;
+}
+IMGUIBox& IMGUIBox::size(int x, float y){
+    const auto &parentBox = imgui->parentBox().m_box;
+
+    y = floor(parentBox.w * y);
+
+    m_box.z = x;
+    m_box.w = y;
+    m_flags |= FixedSize;
+
+    return *this;
+}
+IMGUIBox& IMGUIBox::size(float x, int y){
+    const auto &parentBox = imgui->parentBox().m_box;
+
+    x = floor(parentBox.z * x);
+
+    m_box.z = x;
+    m_box.w = y;
+    m_flags |= FixedSize;
+
+    return *this;
+}
+IMGUIBox& IMGUIBox::size(float x, float y){
+    const auto &parentBox = imgui->parentBox().m_box;
+
+    x = floor(parentBox.z * x);
+    y = floor(parentBox.w * y);
+
+    m_box.z = x;
+    m_box.w = y;
+    m_flags |= FixedSize;
+
+    return *this;
+}
+IMGUIBox& IMGUIBox::pos(int x, int y){
+    m_flags |= AbsolutePosition;
+    float u(x),v(y);
+    const auto &parentBox = imgui->parentBox().m_box;
+
+    if(x < 0) u += parentBox.z;
+    if(y < 0) v += parentBox.w;
+
+    m_currStart.x = parentBox.x + u;
+    m_currStart.y = parentBox.y + v;
+    m_box.x = parentBox.x + u;
+    m_box.y = parentBox.y + v;
+    return *this;
+}
+IMGUIBox& IMGUIBox::pos(int x, float y){
+    m_flags |= AbsolutePosition;
+    float u(x),v(y);
+    const auto &parentBox = imgui->parentBox().m_box;
+
+    if(x < 0) u += parentBox.z;
+    v = floor(parentBox.w*y);
+
+    m_currStart.x = parentBox.x + u;
+    m_currStart.y = parentBox.y + v;
+    m_box.x = parentBox.x + u;
+    m_box.y = parentBox.y + v;
+    return *this;
+}
+IMGUIBox& IMGUIBox::pos(float x, int y){
+    m_flags |= AbsolutePosition;
+    float u(x),v(y);
+    const auto &parentBox = imgui->parentBox().m_box;
+
+
+    if(x<1) u = floor(parentBox.z*x);
+    if(y < 0) v += parentBox.w;
+
+    m_currStart.x = parentBox.x + u;
+    m_currStart.y = parentBox.y + v;
+    m_box.x = parentBox.x + u;
+    m_box.y = parentBox.y + v;
     return *this;
 }
 IMGUIBox& IMGUIBox::pos(float x, float y){
@@ -86,11 +158,8 @@ IMGUIBox& IMGUIBox::pos(float x, float y){
     float u(x),v(y);
     const auto &parentBox = imgui->parentBox().m_box;
 
-    if(x < 0) u += parentBox.z;
-    else if(x<1) u = floor(parentBox.z*x);
-
-    if(y < 0) u += parentBox.w;
-    else if(y<1) v = floor(parentBox.w*y);
+    u += floor(parentBox.z*x);
+    v = floor(parentBox.w*y);
 
     m_currStart.x = parentBox.x + u;
     m_currStart.y = parentBox.y + v;

@@ -8,7 +8,7 @@ class UITester
 {
 private:
     UI::IMGUI &ui;
-    float f {0};
+    float f {20};
     int i {220};
     int caretPosition {-2};
 public:
