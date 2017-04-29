@@ -30,8 +30,8 @@ IMGUIBox& IMGUI::endTable(){
     float b = group.m_border;
 
     Box rect = group.m_box;
-    if((group.m_flags & FixedSize) != FixedSize){
-        if(group.m_flags & Vertical)
+    if((group.m_flags & FixedTwoSizes) != FixedTwoSizes){
+        if(group.m_flags & Vertical) /// TODO: co to robi?
             rect.w = (abs(group.m_box.y - group.m_currStart.y)+b)*sign(rect.w);
 
         else if(group.m_flags & Horizontal)
@@ -67,12 +67,56 @@ IMGUIBox& IMGUIBox::box(int flags, Box spawnPosition, IMGUI *_imgui){
 
     return *this;
 }
+IMGUIBox& IMGUI::endBox(){
+    IMGUIBox &group = m_boxStack[m_boxIndex];
+    float b = group.m_border;
+
+    Box rect = group.m_box;
+    // if(!(group.m_flags & FixedTwoSizes)){
+        if(group.m_flags & Vertical) /// TODO: co to robi?
+            rect.w = std::max((abs(group.m_box.y - group.m_currStart.y)+b), std::abs(group.m_box.w))*sign(rect.w);
+
+        else if(group.m_flags & Horizontal)
+            rect.z = std::max((abs(group.m_box.x - group.m_currStart.x)+b), std::abs(group.m_box.z))*sign(rect.z);
+    // }
+
+    rect = fixRect(rect);
+
+    if(group.m_flags & Draw){
+        m_uiGraphic.change(Style::Box & Style::None, group.m_rectIdx, rect, currentLayer);
+    }
+
+    m_boxStack[m_boxIndex].m_box = rect;
+    m_boxIndex--;
+    if(!(m_boxStack[m_boxIndex+1].m_flags & AbsolutePosition))
+        m_boxStack[m_boxIndex].insertRect(rect+Box(-1,-1,0.5f,1));
+    return group;
+}
+
+IMGUIBox& IMGUIBox::size(const SizeSetter &setter){
+    if(m_flags & Vertical){
+        m_box.z +=setter(m_box.z);
+    }
+    else {
+        m_box.w += setter(m_box.w);
+    }
+    m_flags |= FixedOneSize;
+    return *this;
+}
+float IMGUIBox::getSize(){
+    if(m_flags & Vertical){
+        return m_box.z;
+    }
+    else {
+        return m_box.w;
+    }
+}
 IMGUIBox& IMGUIBox::size(int x, int y){
     const auto &parentBox = imgui->parentBox().m_box;
 
     m_box.z = x;
     m_box.w = y;
-    m_flags |= FixedSize;
+    m_flags |= FixedTwoSizes;
 
     return *this;
 }
@@ -83,7 +127,7 @@ IMGUIBox& IMGUIBox::size(int x, float y){
 
     m_box.z = x;
     m_box.w = y;
-    m_flags |= FixedSize;
+    m_flags |= FixedTwoSizes;
 
     return *this;
 }
@@ -94,7 +138,7 @@ IMGUIBox& IMGUIBox::size(float x, int y){
 
     m_box.z = x;
     m_box.w = y;
-    m_flags |= FixedSize;
+    m_flags |= FixedTwoSizes;
 
     return *this;
 }
@@ -106,7 +150,7 @@ IMGUIBox& IMGUIBox::size(float x, float y){
 
     m_box.z = x;
     m_box.w = y;
-    m_flags |= FixedSize;
+    m_flags |= FixedTwoSizes;
 
     return *this;
 }
@@ -214,32 +258,6 @@ IMGUIBox& IMGUIBox::border(int x, int y){
 IMGUIBox& IMGUIBox::operator()(){
     return *this;
 }
-
-IMGUIBox& IMGUI::endBox(){
-    IMGUIBox &group = m_boxStack[m_boxIndex];
-    float b = group.m_border;
-
-    Box rect = group.m_box;
-    // if(!(group.m_flags & FixedSize)){
-        if(group.m_flags & Vertical)
-            rect.w = std::max((abs(group.m_box.y - group.m_currStart.y)+b), std::abs(group.m_box.w))*sign(rect.w);
-
-        else if(group.m_flags & Horizontal)
-            rect.z = std::max((abs(group.m_box.x - group.m_currStart.x)+b), std::abs(group.m_box.z))*sign(rect.z);
-    // }
-
-    rect = fixRect(rect);
-
-    if(group.m_flags & Draw){
-        m_uiGraphic.change(Style::Box & Style::None, group.m_rectIdx, rect, currentLayer);
-    }
-
-    m_boxStack[m_boxIndex].m_box = rect;
-    m_boxIndex--;
-    if(!(m_boxStack[m_boxIndex+1].m_flags & AbsolutePosition))
-        m_boxStack[m_boxIndex].insertRect(rect+Box(-1,-1,0.5f,1));
-    return group;
-}
 IMGUIBox& IMGUIBox::onGroupHover(std::function<void(Box rect)>fun){
     imgui->onGroupHover(fun);
     return *this;
@@ -315,17 +333,19 @@ Box IMGUIBox::insertRect(const Box &r){ // r is fixed
             mod = -1.f;
         else if(m_flags & ToBottom)
             mod = 1.f;
-
-        if(m_flags & ToLeft){
-            m_box.z = std::max(m_box.z, w+2*border);
-        }
-        else if(m_flags & ToRight){
-            m_box.z = std::min(m_box.z, -w-2*border);
+        /// rozszerza wymiar postopadły
+        if(!(m_flags & FixedOneSize)){
+            if(m_flags & ToLeft){
+                m_box.z = std::max(m_box.z, w+2*border);
+            }
+            else if(m_flags & ToRight){
+                m_box.z = std::min(m_box.z, -w-2*border);
+            }
         }
 
         m_currStart += Box(0,(border + h-1)*mod,0,0);
 
-        if(!(m_flags & FixedSize))
+        if(!(m_flags & FixedTwoSizes)) /// Jeśli nie ma FixedTwoSizes to rozszerza boxa wzdłuż layoutu
             m_box += Box(0,0,0,(border + h-1)*mod);
 
     }
@@ -337,17 +357,18 @@ Box IMGUIBox::insertRect(const Box &r){ // r is fixed
         else if(m_flags & ToRight)
             mod = -1.f;
 
-        if(m_flags & ToBottom){
-            m_box[3] = std::max(m_box[3], h+2*border);
+        if(!(m_flags & FixedOneSize)){
+            if(m_flags & ToBottom){
+                m_box[3] = std::max(m_box[3], h+2*border);
 
+            }
+            else if(m_flags & ToTop){
+                m_box[3] = std::min(m_box[3], -h-2*border);
+            }
         }
-        else if(m_flags & ToTop){
-            m_box[3] = std::min(m_box[3], -h-2*border);
-        }
-
         m_currStart += Box((border + w-1)*mod,0,0,0);
 
-        if(!(m_flags & FixedSize))
+        if(!(m_flags & FixedTwoSizes))
             m_box += Box(0,0,(border + w-1)*mod,0);
     }
 

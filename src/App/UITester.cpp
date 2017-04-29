@@ -4,6 +4,14 @@
 #include "Logging.hpp"
 
 void UITester::run(){
+    ui.table(UI::Vertical | UI::ToLeft | UI::ToBottom | UI::Draw)
+      .size(UI::Px(500));
+        ui.rect(UI::Px(30)).slider(f, -500, 500).text("f" + toString(f), font::Default, font::Center)();
+        ui.label(10, 30).text("")();
+        ui.label(100, 30).text("")();
+        ui.label(102, 30).text("")();
+    ui.endTable();
+
     ui.table(UI::Vertical | UI::ToLeft | UI::ToTop | UI::Draw)
       .border(1)
       .pos((int)f, -1)
@@ -17,9 +25,9 @@ void UITester::run(){
     ui.button(i,30).color(color::white).text("}{bdS9fyHZ", font::Default).onLMB([]{log("B");})();
     ui.button(i,30).color(color::white).text("S9608qgh3kpi", font::Default, font::Center, caretPosition).onLMB([]{log("B");})();
     ui.button(i,30).color(color::white).text("f"+toString(f), font::Default, font::Center).onLMB([]{log("C");})();
-    ui.rect(250, 30).slider(f, -500, 500)();
-    ui.rect(250, 30).slider(i, 200, 400)();
-    ui.rect(250, 30).slider(caretPosition, -2, 15).text(toString(caretPosition, font::Default, font::Center))();
+    // ui.rect(250, 30).slider(f, -500, 500)();
+    // ui.rect(250, 30).slider(i, 200, 400)();
+    // ui.rect(250, 30).slider(caretPosition, -2, 15).text(toString(caretPosition), font::Default, font::Center)();
 
     ui.endTable();
 }

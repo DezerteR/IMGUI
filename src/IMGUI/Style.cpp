@@ -12,7 +12,7 @@ Style::Style(){
     colors[Editbox & Hover] = 0x90'90'90'40;
     colors[Editbox & Press] = 0x90'90'90'40;
     colors[Editbox & Active] = 0x90'90'90'40;
-    colors[Box & None] = 0x0'0'0'01;
+    colors[Box & None] = 0x01'30'01'40;
     colors[Background] = 0x0'0'0'40;
     colors[Slider & None] = 0x81'87'87'a0;
     colors[Slider & Hover] = 0xa7'a7'a7'40;

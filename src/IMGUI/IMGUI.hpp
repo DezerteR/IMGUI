@@ -17,8 +17,78 @@ typedef glm::vec4 Box;
 extern bool GetInput;
 
 class IMGUI;
-struct UISettings
-{};
+#ifndef BIT
+#define BIT(x) (1<<(x))
+#endif
+
+enum GroupFlags
+{
+    Vertical = BIT(1),
+    Horizontal = BIT(2),
+
+    ToLeft = BIT(3),
+    ToRight = BIT(4),
+
+    ToCenterV = BIT(5),
+    ToCenterH = BIT(6),
+    ToCenter = BIT(22),
+
+    ToTop = BIT(7),
+    ToBottom = BIT(8),
+    Centered = BIT(9),
+
+    Draw = BIT(10),
+    Background = BIT(11),
+
+    HotFix1 = BIT(12),
+    CenterText = BIT(13),
+    FixedOneSize = BIT(14),
+    FixedTwoSizes = BIT(15),
+    FixedPos = BIT(16),
+    FixedPos2 = BIT(17),
+    NewLayer = BIT(18),
+    RelativePosition = BIT(19),
+    AbsolutePosition = BIT(20),
+    NoInsertion = BIT(21),
+
+    HorizonBottom = Horizontal | ToLeft | ToBottom,
+    HorizonTop = Horizontal | ToLeft | ToTop,
+    VertBottom = Vertical | ToLeft | ToBottom,
+    VertTop = Vertical | ToLeft | ToTop,
+
+    ClearLayout = Horizontal | Vertical | Draw | FixedOneSize | FixedTwoSizes | FixedPos,
+};
+
+class SizeSetter
+{
+public:
+    virtual ~SizeSetter() = default;
+    virtual float operator ()(float) const = 0;
+};
+
+class Px : public SizeSetter
+{
+public:
+    float val;
+
+    Px(float val) : val(val){}
+
+    float operator() (float sizeRelativeTo) const {
+        return val < 0 ? sizeRelativeTo + val : val;
+    }
+};
+
+class Rel : public SizeSetter
+{
+public:
+    float val;
+
+    Rel(float val) : val(val){}
+
+    float operator() (float sizeRelativeTo) const {
+        return ceil(val * sizeRelativeTo);
+    }
+};
 
 struct IMGUIBox
 {
@@ -32,10 +102,21 @@ struct IMGUIBox
     IMGUI *imgui {nullptr};
 
     IMGUIBox& box(int flags, Box spawnPosition, IMGUI *_imgui);
-    IMGUIBox& size(int x = 0, int y = 0); /// size relative to parent container
-    IMGUIBox& size(int x = 0, float y = 0); /// size relative to parent container
-    IMGUIBox& size(float x = 0, int y = 0); /// size relative to parent container
-    IMGUIBox& size(float x = 0, float y = 0); /// size relative to parent container
+    /**
+        Unieruchamia oba wymiary, można odwoływać się procentowo do obu wymiarów.
+        Można centrować itemy
+    */
+    IMGUIBox& size(int x = 0, int y = 0);
+    IMGUIBox& size(int x = 0, float y = 0);
+    IMGUIBox& size(float x = 0, int y = 0);
+    IMGUIBox& size(float x = 0, float y = 0);
+
+    /**
+        Unieruchamia wymiar prostopadły do kierunku układania.
+        Można centrować itemy
+    */
+    IMGUIBox& size(const SizeSetter &a);
+    float getSize();
 
     IMGUIBox& pos(int x = 0, int y = 0); // position relative to parent, takes parent container size
     IMGUIBox& pos(int x = 0, float y = 0); // position relative to parent, takes parent container size
@@ -66,42 +147,6 @@ struct FigureInfo
     std::vector <std::pair<std::string, glm::vec3>> m_vec3;
     std::vector <std::pair<std::string, glm::vec2>> m_vec2;
     std::vector <std::pair<std::string, float>> m_float;
-};
-
-enum GroupFlags
-{
-    Vertical = 0x01,
-    Horizontal = 0x02,
-
-    ToLeft = 0x04,
-    ToRight = 0x08,
-
-    ToCenterV = 0x10,
-    ToCenterH = 0x20,
-
-    ToTop = 0x40,
-    ToBottom = 0x80,
-    Centered = 0x100,
-
-    Draw = 0x200,
-    Background = 0x400,
-
-    HotFix1 = 0x800,
-    CenterText = 0x1000,
-    FixedSize = 0x10000,
-    FixedPos = 0x20000,
-    FixedPos2 = 0x40000,
-    NewLayer = 0x80000,
-    RelativePosition = 0x100000,
-    AbsolutePosition = 0x200000,
-    NoInsertion = 0x400000,
-
-    HorizonBottom = Horizontal | ToLeft | ToBottom,
-    HorizonTop = Horizontal | ToLeft | ToTop,
-    VertBottom = Vertical | ToLeft | ToBottom,
-    VertTop = Vertical | ToLeft | ToTop,
-
-    ClearLayout = Horizontal | Vertical | Draw | FixedSize | FixedPos,
 };
 
 enum class TypeInfo : int32_t
@@ -237,7 +282,8 @@ public:
     IMGUI& rect(glm::vec2 xy, int w, int h);
     IMGUI& rect(glm::vec2 xy, glm::vec2 wh);
     IMGUI& rect(int w, int h);
-    IMGUI& rect(float w, float h);
+    IMGUI& rect(const SizeSetter &w); /// ustawia wymiar w kierunku układania, drugi jest na jeden
+    IMGUI& rect(const SizeSetter &w, const SizeSetter &h);
     IMGUI& rect(int w, int h, HexColor color);
     IMGUI& rect(Box r, HexColor color);
     IMGUI& rect(int x, int y, int w, int h, HexColor color);

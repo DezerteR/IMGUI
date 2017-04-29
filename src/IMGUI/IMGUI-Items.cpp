@@ -128,6 +128,32 @@ IMGUI& IMGUI::rect(int w, int h){
     item.rClicked = item.hover && updater.mb.rmbPress;
     return *this;
 }
+IMGUI& IMGUI::rect(const SizeSetter &a){
+    if(currentBox().m_flags & Vertical){
+        item.box.z = Rel(1)(currentBox().m_box.z);
+        item.box.w = a(currentBox().m_box.w);
+    }
+    else {
+        item.box.z = a(currentBox().m_box.z);
+        item.box.w = Rel(1)(currentBox().m_box.w);
+    }
+
+    item.box = currentBox().getSpawnPoint(item.box);
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
+    return *this;
+}
+IMGUI& IMGUI::rect(const SizeSetter &w, const SizeSetter &h){
+    item.box.z = w(currentBox().m_box.z);
+    item.box.w = h(currentBox().m_box.w);
+
+    item.box = currentBox().getSpawnPoint(item.box);
+    item.hover = hasHover(item.box);
+    item.lClicked = item.hover && updater.mb.lmbPress;
+    item.rClicked = item.hover && updater.mb.rmbPress;
+    return *this;
+}
 IMGUI& IMGUI::rect(int w, int h, HexColor color){
     item.box = currentBox().getSpawnPoint(Box(0,0,w,h));
     item.hover = hasHover(item.box);
