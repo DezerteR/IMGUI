@@ -5,11 +5,21 @@
 
 void UITester::run(){
     ui.table(UI::Vertical | UI::ToLeft | UI::ToBottom | UI::Draw)
+      .border(5)
       .size(UI::Px(500));
         ui.rect(UI::Px(30)).slider(f, -500, 500).text("f" + toString(f), font::Default, font::Center)();
-        ui.label(10, 30).text("")();
-        ui.label(100, 30).text("")();
-        ui.label(102, 30).text("")();
+        ui.box(UI::Horizontal).size(UI::Rel(1));
+            ui.box(UI::Vertical).size(UI::Rel(0.5));
+                ui.label(UI::Px(30)).text("absa")();
+                ui.label(UI::Px(30)).text("iltut")();
+            ui.endBox();
+            ui.box(UI::Vertical).size(UI::Rel(0.5));
+                ui.label(UI::Px(30)).text("agrds")();
+                ui.label(UI::Px(30)).text("hdf")();
+                ui.label(UI::Px(30)).text("hdf")();
+            ui.endBox();
+        ui.endBox();
+        ui.label(UI::Px(30)).text("blagga")();
     ui.endTable();
 
     ui.table(UI::Vertical | UI::ToLeft | UI::ToTop | UI::Draw)

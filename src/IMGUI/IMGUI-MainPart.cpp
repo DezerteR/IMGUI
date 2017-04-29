@@ -12,6 +12,7 @@ void IMGUI::begin(){
     currentLayer = 0;
     m_force = false;
     m_boxStack[0].m_box = bounds;
+    m_boxStack[0].m_border = 0;
     m_collRects.clear();
     this->captureMouse = false;
     if(updater.mb.lmbRepeat)

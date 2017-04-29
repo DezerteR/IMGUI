@@ -129,13 +129,13 @@ IMGUI& IMGUI::rect(int w, int h){
     return *this;
 }
 IMGUI& IMGUI::rect(const SizeSetter &a){
-    if(currentBox().m_flags & Vertical){
-        item.box.z = Rel(1)(currentBox().m_box.z);
+    if(currentBox().m_containerMainLayout & Vertical){
+        item.box.z = Rel(1)(currentBox().m_box.z) - 2*currentBox().m_border;
         item.box.w = a(currentBox().m_box.w);
     }
     else {
         item.box.z = a(currentBox().m_box.z);
-        item.box.w = Rel(1)(currentBox().m_box.w);
+        item.box.w = Rel(1)(currentBox().m_box.w) - 2*currentBox().m_border;
     }
 
     item.box = currentBox().getSpawnPoint(item.box);

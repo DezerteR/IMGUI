@@ -17,6 +17,7 @@ IMGUIBox& IMGUI::table(Box spawnPosition, int flags){
     m_group.m_flags = flags;
     m_group.m_currStart = m_group.m_box;
     m_group.m_freeRect = fixRect(spawnPosition); // czy to jest do czego u¿ywane?, nie
+    m_group.m_containerMainLayout = flags;// & (Vertical | Horizontal);
     spawnPosition.z = 0;
     spawnPosition.w = 0;
     return m_boxStack[++m_boxIndex].box(flags, spawnPosition, this);
@@ -55,6 +56,7 @@ IMGUIBox& IMGUIBox::box(int flags, Box spawnPosition, IMGUI *_imgui){
 
     m_box = spawnPosition;
     m_border = 0;
+    m_containerMainLayout = imgui->m_group.m_flags;
     m_flags = flags | parentFlags;
     m_currStart = m_box;
     m_currStart.z = 0;
@@ -94,13 +96,21 @@ IMGUIBox& IMGUI::endBox(){
 }
 
 IMGUIBox& IMGUIBox::size(const SizeSetter &setter){
-    if(m_flags & Vertical){
-        m_box.z +=setter(m_box.z);
+    if(m_containerMainLayout & Vertical and m_flags & Vertical){
+        m_flags |= FixedOneSize;
+        m_box.z +=setter(imgui->parentBox().m_box.z) - 2*imgui->parentBox().m_border;
     }
-    else {
-        m_box.w += setter(m_box.w);
+    if(m_containerMainLayout & Vertical and m_flags & Horizontal){
+        m_box.z +=setter(imgui->parentBox().m_box.z) - 2*imgui->parentBox().m_border;
     }
-    m_flags |= FixedOneSize;
+    if(m_containerMainLayout & Horizontal and m_flags & Vertical){
+        m_box.w +=setter(imgui->parentBox().m_box.w) - 2*imgui->parentBox().m_border;
+    }
+    if(m_containerMainLayout & Horizontal and m_flags & Horizontal){
+        m_flags |= FixedOneSize;
+        m_box.w +=setter(imgui->parentBox().m_box.w) - 2*imgui->parentBox().m_border;
+    }
+
     return *this;
 }
 float IMGUIBox::getSize(){
@@ -345,9 +355,8 @@ Box IMGUIBox::insertRect(const Box &r){ // r is fixed
 
         m_currStart += Box(0,(border + h-1)*mod,0,0);
 
-        if(!(m_flags & FixedTwoSizes)) /// Jeśli nie ma FixedTwoSizes to rozszerza boxa wzdłuż layoutu
+        if(!(m_flags & FixedTwoSizes) and not (m_containerMainLayout & Horizontal)) /// Jeśli nie ma FixedTwoSizes to rozszerza boxa wzdłuż layoutu
             m_box += Box(0,0,0,(border + h-1)*mod);
-
     }
 
     else if(m_flags & Horizontal){
@@ -366,9 +375,10 @@ Box IMGUIBox::insertRect(const Box &r){ // r is fixed
                 m_box[3] = std::min(m_box[3], -h-2*border);
             }
         }
+
         m_currStart += Box((border + w-1)*mod,0,0,0);
 
-        if(!(m_flags & FixedTwoSizes))
+        if(not (m_flags & FixedTwoSizes) and not (m_containerMainLayout & Vertical))
             m_box += Box(0,0,(border + w-1)*mod,0);
     }
 

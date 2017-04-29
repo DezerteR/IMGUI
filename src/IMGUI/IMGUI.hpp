@@ -96,6 +96,7 @@ struct IMGUIBox
     Box m_box;
     Box m_currStart;
     Box m_freeRect;
+    int m_containerMainLayout;
     int m_border;
     int m_style;
     int m_rectIdx;
