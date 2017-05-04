@@ -1,5 +1,4 @@
-﻿#include "Common.hpp"
-#include "KeyState.hpp"
+﻿#include "KeyState.hpp"
 
 bool KeyState::lClick = false;
 bool KeyState::mClick = false;

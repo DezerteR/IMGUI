@@ -24,18 +24,28 @@ OBJS = $(TARGETS:%.cpp=$(OBJ_DIR)/%.o)
 
 DEP = $(OBJS:%.o=%.d)
 
-$(BIN)/$(TARGET_NAME): $(OBJS)
+COMMON_PCH_FILENAME=src/App/Common.hpp
+COMMON_PCH=$(COMMON_PCH_FILENAME).gch
+
+$(BIN)/$(TARGET_NAME): $(COMMON_PCH) $(OBJS)
 	@mkdir -p ./bin
 	@echo "Linking: $@"
-	@$(CXX) $^ -o $@ $(LIBS)
+	@$(CXX) $(OBJS) -o $@ $(LIBS)
 	@echo "Done"
+	@printf 'Now time is %s\n' "$$(C:/MinGW/msys/bin/date.exe +%T)"
 
 -include $(DEP)
 
+$(COMMON_PCH):
+	@$(CXX) $(CXX_FLAGS) -x c++-header $(COMMON_PCH_FILENAME)
+	@echo "PCH regenerated"
+
 $(OBJ_DIR)/%.o : %.cpp
+	@printf 'Now time is %s\n' "$$(C:/MinGW/msys/bin/date.exe +%T)"
 	@echo "Compiling: $< "
 	@mkdir -p $(@D)
 	@$(CXX) $(CXX_FLAGS) $(ADDITIONAL_FLAGS) -MMD -c $< -o $@
+
 
 clean:
 	rm -rf $(OBJ_DIR)

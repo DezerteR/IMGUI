@@ -1,5 +1,4 @@
-﻿#include "Common.hpp"
-#include "BaseStructs.hpp"
+﻿#include "BaseStructs.hpp"
 #include "Style.hpp"
 #include "IMGUI.hpp"
 #include "UIGraphicComponent.hpp"

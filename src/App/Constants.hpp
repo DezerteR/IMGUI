@@ -1,4 +1,5 @@
 #pragma once
+#include "Common.hpp"
 
 extern const float pi;
 extern const float pi2;

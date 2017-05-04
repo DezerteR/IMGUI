@@ -38,6 +38,7 @@ $RECYCLE.BIN/
 *.blend4
 *.old
 *.md
+*.gch
 
 # Windows Installer files
 *.cab

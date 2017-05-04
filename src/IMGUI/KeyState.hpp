@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Common.hpp"
 class KeyState
 {
 public:
